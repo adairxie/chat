@@ -1,0 +1,30 @@
+#include "EventLoop.h"
+#include "Thread.h"
+#include <stdio.h>
+
+#include "Channel.h"
+#include "Poller.h"
+void threadFunc()
+{
+    printf("threadFunc(): pid = %d, tid = %d\n",
+		    getpid(),CurrentThread::tid());
+
+    EventLoop loop;
+    loop.loop();
+}
+
+int main()
+{
+   printf("main(): pid = %d, tid = %d\n",
+		   getpid(),CurrentThread::tid());
+
+   EventLoop loop;
+
+//   Thread thread(threadFunc);
+//   thread.start();
+   loop.loop();
+   EventLoop loop1;
+   loop1.loop();
+
+   pthread_exit(NULL);
+}

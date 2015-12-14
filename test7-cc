@@ -1,0 +1,30 @@
+#include "Acceptor.h"
+#include "EventLoop.h"
+#include "InetAddress.h"
+#include "SocketsOps.h"
+#include <stdio.h>
+#include "Timestamp.h"
+#include <string>
+void newConnection(int sockfd,const InetAddress& peerAddr)
+{
+  printf("newConnection():Accepted a new connection from %s\n",
+	  peerAddr.toHostPort().c_str());
+  string str=Timestamp::now().toFormattedString()+"\n";
+  ::write(sockfd,str.c_str(),strlen(str.c_str()));
+//  sockets::close(sockfd);
+}
+
+int main()
+{
+  printf("main(): pid = %d\n",getpid());
+
+  InetAddress listenAddr(9981);
+  EventLoop loop;
+
+  Acceptor acceptor(&loop,listenAddr);
+  acceptor.setNewConnectionCallback(newConnection);
+
+  acceptor.listen();
+
+  loop.loop();
+}

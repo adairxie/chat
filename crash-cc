@@ -1,0 +1,22 @@
+#include "EventLoop.h"
+#include "Thread.h"
+#include <iostream>
+EventLoop* g_loop;
+void print() {
+	std::cout<<"hello xiehui!"<<std::endl;
+}
+
+void threadFunc()
+{
+   g_loop->runAfter(3.0,print);
+}
+
+int main()
+{
+  EventLoop loop;
+  g_loop=&loop;
+
+  Thread t(threadFunc);
+  t.start();
+  loop.loop();
+}
