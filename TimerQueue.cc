@@ -82,6 +82,8 @@ TimerQueue::TimerQueue(EventLoop* loop)
 
 TimerQueue::~TimerQueue()
 {
+   timerfdChannel_.disableAll();
+   timerfdChannel_.remove();
    ::close(timerfd_);
    //do not remove channel,since we're in EventLoop::dtor();
    for(TimerList::iterator it=timers_.begin();
@@ -98,13 +100,13 @@ TimerId TimerQueue::addTimer(const TimerCallback& cb,
   Timer* timer=new Timer(cb,when,interval);
   loop_->runInLoop(
 	 boost::bind(&TimerQueue::addTimerInLoop,this,timer));
-  return TimerId(timer);
+  return TimerId(timer, timer->sequence());
 }
 
 void TimerQueue::cancel(TimerId timerId)
 {
   loop_->runInLoop(
-       boost::bind(&TimerQueue::cancel,this,timerId));
+       boost::bind(&TimerQueue::cancelInLoop,this,timerId));
 }
 
 void TimerQueue::cancelInLoop(TimerId timerId)
@@ -150,9 +152,9 @@ void TimerQueue::handleRead()
    cancelingTimers_.clear();
    //safe to callback outside critical section
    for(std::vector<Entry>::iterator it=expired.begin();
-		   it!=expired.end(); ++it)
-   {
-      	   
+		   it != expired.end(); ++it)
+   { 
+      std::cout << "herwerwr\n";
       it->second->run();
    }
    callingExpiredTimers_= false;
@@ -166,12 +168,13 @@ std::vector<TimerQueue::Entry> TimerQueue::getExpired(Timestamp now)
   Entry sentry=make_pair(now,reinterpret_cast<Timer*>(UINTPTR_MAX));
   TimerList::iterator it=timers_.lower_bound(sentry);
   assert(it == timers_.end() || now < it->first);
-  std::copy(timers_.begin(),timers_.end(),back_inserter(expired));
+  std::copy(timers_.begin(), it, back_inserter(expired));
   timers_.erase(timers_.begin(), it);
 
-  BOOST_FOREACH(Entry entry,expired)
+  for (std::vector<Entry>::iterator it = expired.begin();
+      it != expired.end(); ++it)
   {
-     ActiveTimer timer(entry.second, entry.second->sequence());
+     ActiveTimer timer(it->second, it->second->sequence());
      size_t n = activeTimers_.erase(timer);
      assert(n == 1 ); (void)n;
   }
@@ -235,9 +238,9 @@ bool TimerQueue::insert(Timer* timer)
     assert(result.second); (void)result;
   }
   { 
-     std::pair<TimerList::iterator,bool> result=
-     timers_.insert(std::make_pair(when,timer));
-     assert(result.second);
+     std::pair<ActiveTimerSet::iterator,bool> result=
+     activeTimers_.insert(ActiveTimer(timer, timer->sequence()));
+     assert(result.second); (void)result;
   }
   assert(timers_.size() == activeTimers_.size());
   return earliestChanged; 
