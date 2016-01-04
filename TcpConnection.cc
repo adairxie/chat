@@ -24,10 +24,12 @@ TcpConnection::TcpConnection(EventLoop* loop,
     socket_(new Socket(sockfd)),
     channel_(new Channel(loop,sockfd)),
     localAddr_(localAddr),
-    peerAddr_(peerAddr)
+    peerAddr_(peerAddr),
+    highWaterMark_(64*1024*1024)
 {
    LOG_DEBUG << "TcpConnection::ctor[" << name_ <<"]" << this
 	   << " fd=" << sockfd;
+   socket_->setKeepAlive(true);
 
    channel_->setReadCallback(
 		   boost::bind(&TcpConnection::handleRead,this,_1));
@@ -63,6 +65,12 @@ void TcpConnection::sendInLoop(const std::string& message)
    ssize_t nwrote =0;
    size_t len=message.size();
    size_t remaining = len;
+   bool faultError = false;
+   if (state_ == kDisconnected)
+   {
+      LOG_WARN << "disconnected, give up writting";
+      return;
+   }
    //if no thing in output queue,try writting directly.
    if( !channel_->isWriting() && outputBuffer_.readableBytes() == 0){
      nwrote= ::write(channel_->fd(),message.data(),message.size());
@@ -76,15 +84,29 @@ void TcpConnection::sendInLoop(const std::string& message)
 	}
      }else{
        nwrote = 0;
-       if( errno != EWOULDBLOCK) {
- 	 LOG_SYSERR << "TcpConnection::sendInLoop";
+       if( errno != EWOULDBLOCK) 
+       {
+ 	       LOG_SYSERR << "TcpConnection::sendInLoop";
+         if (errno == EPIPE || errno == ECONNRESET) 
+         {
+            faultError = true;
+         }
        }
     }
    }
 
-   assert(nwrote >= 0); // >0?
-   if( implicit_cast<size_t>(nwrote) < message.size()){
-	   outputBuffer_.append(message.data()+nwrote,message.size()-nwrote);
+   assert(remaining <= len); // >0?
+   if (!faultError && remaining > 0)
+   {
+     size_t oldLen = outputBuffer_.readableBytes();
+     if (oldLen + remaining >= highWaterMark_
+         && oldLen < highWaterMark_
+         && highWaterMarkCallback_)
+     {
+       loop_->queueInLoop(
+           boost::bind(highWaterMarkCallback_, shared_from_this(), oldLen + remaining));
+     }
+     outputBuffer_.append(static_cast<const char*>(message.data()) + nwrote, remaining);
 	   if( !channel_->isWriting()){
               channel_->enableWriting();
 	   }
