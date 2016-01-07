@@ -14,6 +14,7 @@
 #include <boost/noncopyable.hpp>
 
 #include "Mutex.h"
+#include "Logging.h"
 #include "TcpConnection.h"
 
 class Connector;

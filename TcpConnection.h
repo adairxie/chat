@@ -4,6 +4,7 @@
 #include "Buffer.h"
 #include "Callbacks.h"
 #include "InetAddress.h"
+#include "Logging.h"
 
 #include <boost/any.hpp>
 #include <boost/enable_shared_from_this.hpp>
@@ -46,6 +47,9 @@ class TcpConnection : boost ::noncopyable,
       void send(Buffer* message);
       //Thread safe.
       void shutdown();
+      
+      void forceClose();
+      
       void setTcpNoDelay(bool on);
       void setKeepAlive(bool on);
 
@@ -80,6 +84,8 @@ class TcpConnection : boost ::noncopyable,
       void sendInLoop(const std::string& message);
       void sendInLoop(const void* message, int len);
       void shutdownInLoop();
+      void forceCloseInLoop();
+
 
       EventLoop* loop_;
       std::string name_;
@@ -101,4 +107,11 @@ class TcpConnection : boost ::noncopyable,
 };
 
 typedef boost::shared_ptr<TcpConnection> TcpConnectionPtr;
+
+void defaultConnectionCallback(const TcpConnectionPtr& conn);
+
+void defaultMessageCallback(const TcpConnectionPtr& conn,
+                            Buffer* buf,
+                            Timestamp);
+
 #endif

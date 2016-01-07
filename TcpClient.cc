@@ -9,9 +9,8 @@
 
 #include "TcpClient.h"
 
-#include "Logging.h"
-#include "Connector.h"
 #include "EventLoop.h"
+#include "Connector.h"
 #include "SocketsOps.h"
 
 #include <boost/bind.hpp>
@@ -30,7 +29,8 @@
 // {
 // }
 
-
+namespace detail
+{
 void removeConnection(EventLoop* loop, const TcpConnectionPtr& conn)
 {
   loop->queueInLoop(boost::bind(&TcpConnection::connectDestroyed, conn));
@@ -39,6 +39,8 @@ void removeConnection(EventLoop* loop, const TcpConnectionPtr& conn)
 void removeConnector(const ConnectorPtr& connector)
 {
   //connector->
+}
+
 }
 
 TcpClient::TcpClient(EventLoop* loop,

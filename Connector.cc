@@ -59,8 +59,8 @@ void Connector::startInLoop()
 
 void Connector::connect()
 {
-  int sockfd = sockets::createNonblockingOrDie();
-  int ret = sockets::connect(sockfd, serverAddr_.getSockAddrInet());
+  int sockfd = sockets::createNonblockingOrDie(AF_INET);
+  int ret = sockets::connect(sockfd, serverAddr_.getSockAddr());
   int savedErrno = (ret == 0) ? 0 : errno;
   switch (savedErrno)
   {
@@ -200,7 +200,7 @@ void Connector::retry(int sockfd)
   if (connect_)
   {
     LOG_INFO << "Connector::retry - Retry connecting to "
-             << serverAddr_.toHostPort() << " in "
+             << serverAddr_.toIpPort() << " in "
              << retryDelayMs_ << " milliseconds. ";
     timerId_ = loop_->runAfter(retryDelayMs_/1000.0,  // FIXME: unsafe
                                boost::bind(&Connector::startInLoop, this));

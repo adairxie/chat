@@ -1,6 +1,5 @@
 #include "TcpConnection.h"
 
-#include "Logging.h"
 #include "Channel.h"
 #include "EventLoop.h"
 #include "Socket.h"
@@ -12,6 +11,20 @@
 #include <stdio.h>
 
 using namespace sockets;
+
+void defaultConnectionCallback(const TcpConnectionPtr& conn)
+{
+    LOG_TRACE << conn->localAddress().toIpPort() << " -> "
+        << conn->peerAddress().toIpPort() << " is "
+        << (conn->connected() ? "UP" : "DOWN");
+}
+
+void defaultMessageCallback(const TcpConnectionPtr& conn,
+                            Buffer* buf,
+                            Timestamp)
+{
+    buf->retrieveAll();
+}
 
 TcpConnection::TcpConnection(EventLoop* loop,
 	const std::string& nameArg,
@@ -162,6 +175,24 @@ void TcpConnection::shutdownInLoop()
       //we are not writing
       socket_->shutdownWrite();
    }
+}
+
+void TcpConnection::forceClose()
+{
+    if (state_ == kConnected || state_ == kDisconnecting)
+    {
+        setState(kDisconnecting);
+        loop_->queueInLoop(boost::bind(&TcpConnection::forceCloseInLoop, shared_from_this()));
+    }
+}
+
+void TcpConnection::forceCloseInLoop()
+{
+    loop_->assertInLoopThread();
+    if (state_ == kConnected || state_ == kDisconnecting)
+    {
+        handleClose();
+    }
 }
 
 void TcpConnection::setTcpNoDelay(bool on)
