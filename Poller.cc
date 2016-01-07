@@ -38,14 +38,14 @@ void Poller::fillActiveChannels(int numEvents,ChannelList* activeChannels) const
   {
     if( pfd->revents > 0 )
     {
-	--numEvents;
-	ChannelMap::const_iterator ch=channels_.find(pfd->fd);
+    	  --numEvents;
+	      ChannelMap::const_iterator ch=channels_.find(pfd->fd);
         assert( ch != channels_.end());
         Channel* channel=ch->second;
-	assert(channel->fd() == pfd->fd);
-	channel->set_revents(pfd->revents);
-	//pfd->revents =0;
-	activeChannels->push_back(channel);
+	      assert(channel->fd() == pfd->fd);
+	      channel->set_revents(pfd->revents);
+	      //pfd->revents =0;
+	      activeChannels->push_back(channel);
     }
   }
 }

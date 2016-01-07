@@ -16,8 +16,21 @@ class EventLoopThreadPool;
 class TcpServer: boost::noncopyable
 {
   public:
-     TcpServer(EventLoop* loop,const InetAddress& listenAddr);
+     enum Option
+     {
+        kNoReusePort,
+        kReusePort,
+     };
+
+     TcpServer(EventLoop* loop,
+               const InetAddress& listenAddr,
+               const string& nameArg,
+               Option option = kNoReusePort);
      ~TcpServer();  // force out-line dtor, for scoped_ptr members.
+
+     const std::string& ipPort() const { return ipPort_; }
+     const std::string& name() const { return name_;}
+     EventLoop* getLoop() const {return loop_; }
 
      ///Starts the server if it's not listening.
      ///
@@ -34,7 +47,7 @@ class TcpServer: boost::noncopyable
      //- 1 meas all I/O in another thread.
      //- N means a thread pool with N threads, new connections
      //are assigned on a round-robin basis/
-     void serThreadNum(int numThreads);
+     void setThreadNum(int numThreads);
 
 
 
@@ -63,6 +76,7 @@ class TcpServer: boost::noncopyable
      typedef std::map<std::string,TcpConnectionPtr> ConnectionMap;
      
      EventLoop* loop_;  // the acceptor loop
+     const std::string ipPort_;
      const std::string name_;
      boost::scoped_ptr<Acceptor> acceptor_;  // avoid revealing Acceptor
      boost::scoped_ptr<EventLoopThreadPool> threadPool_;

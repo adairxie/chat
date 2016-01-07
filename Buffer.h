@@ -65,6 +65,12 @@ class Buffer : public muduo::copyable
   const char* peek() const
   { return begin() + readerIndex_; }
 
+  const char* findCRLF() const
+  {
+    const char* crlf = std::search(peek(), beginWrite(), kCRLF, kCRLF+2);
+    return crlf == beginWrite() ? NULL : crlf;
+  }
+
   // retrieve returns void, to prevent
   // string str(retrieve(readableBytes()), readableBytes());
   // the evaluation of two functions are unspecified
@@ -86,12 +92,17 @@ class Buffer : public muduo::copyable
     readerIndex_ = kCheapPrepend;
     writerIndex_ = kCheapPrepend;
   }
-
-  std::string retrieveAsString()
+  std::string retrieveAllAsString()
   {
-    std::string str(peek(), readableBytes());
-    retrieveAll();
-    return str;
+    return retrieveAsString(readableBytes());
+  }
+
+  std::string retrieveAsString(size_t len)
+  {
+    assert(len <= readableBytes());
+    std::string result(peek(), len);
+    retrieve(len);
+    return result;
   }
 
   void append(const std::string& str)
@@ -182,6 +193,8 @@ class Buffer : public muduo::copyable
   std::vector<char> buffer_;
   size_t readerIndex_;
   size_t writerIndex_;
+  
+  static const char kCRLF[];
 };
 
 

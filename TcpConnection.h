@@ -41,7 +41,9 @@ class TcpConnection : boost ::noncopyable,
 
       //void send(const void* message,size_t len);
       //Thread safe.
+      void send(const void* message, int len);
       void send(const std::string& message);
+      void send(Buffer* message);
       //Thread safe.
       void shutdown();
       void setTcpNoDelay(bool on);
@@ -76,6 +78,7 @@ class TcpConnection : boost ::noncopyable,
       void handleClose();
       void handleError();
       void sendInLoop(const std::string& message);
+      void sendInLoop(const void* message, int len);
       void shutdownInLoop();
 
       EventLoop* loop_;

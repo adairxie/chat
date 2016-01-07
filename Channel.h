@@ -39,7 +39,7 @@ class Channel: boost::noncopyable
      void set_index(int idx) { index_ = idx ;}
 
      EventLoop* ownerLoop() {return loop_;}
-
+     void remove();
   private:
      void update();
 
@@ -54,6 +54,7 @@ class Channel: boost::noncopyable
      int  index_; //used by Poller.
      
      bool eventHandling_;
+     bool addedToLoop_;
 
      ReadEventCallback readCallback_;
      EventCallback writeCallback_;

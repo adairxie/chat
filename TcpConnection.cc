@@ -47,6 +47,11 @@ TcpConnection::~TcpConnection()
 	   << " fd=" << channel_->fd();
 }
 
+void TcpConnection::send(const void* data, int len)
+{
+    send(std::string(static_cast<const char*>(data), len));
+}
+
 void TcpConnection::send(const std::string& message)
 {
    if(state_ == kConnected ){
@@ -57,6 +62,29 @@ void TcpConnection::send(const std::string& message)
           boost::bind(&TcpConnection::sendInLoop,this,message));
      }
    }
+}
+
+void TcpConnection::send(Buffer* buf)
+{
+    if (state_ == kConnected)
+    {
+      if (loop_->isInLoopThread())
+      {
+        sendInLoop(buf->peek(), buf->readableBytes());
+        buf->retrieveAll();
+      }
+      else
+      {
+        loop_->runInLoop(
+                boost::bind(&TcpConnection::sendInLoop,
+                    this,
+                    buf->retrieveAllAsString()));
+      }
+    }
+}
+void TcpConnection::sendInLoop(const void* message, int len)
+{
+    sendInLoop(std::string(static_cast<const char*>(message), len));
 }
 
 void TcpConnection::sendInLoop(const std::string& message)

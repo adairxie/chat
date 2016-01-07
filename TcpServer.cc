@@ -8,10 +8,14 @@
 #include <boost/bind.hpp>
 #include <stdio.h>
 
-TcpServer::TcpServer(EventLoop* loop, const InetAddress& listenAddr)
+TcpServer::TcpServer(EventLoop* loop, 
+                    const InetAddress& listenAddr,
+                    const std::string& nameArg,
+                    Option option)
 	:loop_(loop),
-	name_(listenAddr.toHostPort()),
-	acceptor_(new Acceptor(loop, listenAddr)),
+	ipPort_(listenAddr.toIpPort()),
+    name_(nameArg),
+	acceptor_(new Acceptor(loop, listenAddr, option == kReusePort)),
 	threadPool_(new EventLoopThreadPool(loop)),
 	started_(false),
 	nextConnId_(1)
@@ -24,6 +28,12 @@ TcpServer::TcpServer(EventLoop* loop, const InetAddress& listenAddr)
 TcpServer::~TcpServer()
 {
 
+}
+
+void TcpServer::setThreadNum(int numThreads)
+{
+  assert(0 <= numThreads);
+  threadPool_->setThreadNum(numThreads);
 }
 
 void TcpServer::start()
@@ -49,7 +59,7 @@ void TcpServer::newConnection(int sockfd,const InetAddress& peerAddr)
    std::string connName = name_ + buf;
 
    LOG_INFO <<"TcpServer::newConnection ["<< name_ <<
-	   "] - new connection [" << connName << "] from " <<peerAddr.toHostPort();
+	   "] - new connection [" << connName << "] from " <<peerAddr.toIpPort();
    InetAddress localAddr(sockets::getLocalAddr(sockfd));
    //Poll with zedro timeout to doule confirm the new connection
    EventLoop* ioLoop =threadPool_->getNextLoop();

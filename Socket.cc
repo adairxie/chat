@@ -10,6 +10,7 @@
 
 #include "InetAddress.h"
 #include "SocketsOps.h"
+#include "Logging.h"
 
 #include <netinet/in.h>
 #include <netinet/tcp.h>
@@ -23,7 +24,7 @@ Socket::~Socket()
 
 void Socket::bindAddress(const InetAddress& addr)
 {
-  sockets::bindOrDie(sockfd_, addr.getSockAddrInet());
+  sockets::bindOrDie(sockfd_, addr.getSockAddr());
 }
 
 void Socket::listen()
@@ -33,12 +34,12 @@ void Socket::listen()
 
 int Socket::accept(InetAddress* peeraddr)
 {
-  struct sockaddr_in addr;
+  struct sockaddr_in6 addr;
   bzero(&addr, sizeof addr);
   int connfd = sockets::accept(sockfd_, &addr);
   if (connfd >= 0)
   {
-    peeraddr->setSockAddrInet(addr);
+    peeraddr->setSockAddrInet6(addr);
   }
   return connfd;
 }
@@ -49,6 +50,25 @@ void Socket::setReuseAddr(bool on)
   ::setsockopt(sockfd_, SOL_SOCKET, SO_REUSEADDR,
                &optval, sizeof optval);
   // FIXME CHECK
+}
+
+void Socket::setReusePort(bool on)
+{
+#ifdef SO_RUSEPORT
+    int optival = on ? 1:0;
+    int ret = ::setsockopt(sockfd_, SOL_SOCKET, SO_REUSEPORT,
+            &optval, static_cast<socklen_t>(sizeof optival));
+
+    if (ret < 0 && on)
+    {
+        LOG_SYSERR << "SO_REUSEPORT failed.";
+    }
+#else
+    if (on)
+    {
+        LOG_ERROR << "SO_REUSEPORT is not supported.";
+    }
+#endif
 }
 
 void Socket::shutdownWrite()
@@ -68,6 +88,6 @@ void Socket::setTcpNoDelay(bool on)
 void Socket::setKeepAlive(bool on)
 {
    int optval=on ? 1 : 0;
-   ::setsockopt(sockfd_,IPPROTO_TCP,SO_KEEPALIVE,
+   ::setsockopt(sockfd_, SOL_SOCKET, SO_KEEPALIVE,
 		&optval,static_cast<socklen_t>(sizeof optval));
 }

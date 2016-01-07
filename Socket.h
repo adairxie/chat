@@ -55,6 +55,7 @@ class Socket : boost::noncopyable
   ///
   void setTcpNoDelay(bool on);
 
+  void setReusePort(bool on);
   ///
   ///Enable/disable SO_KEEPLIVE
   ///
