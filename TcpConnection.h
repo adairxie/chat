@@ -11,6 +11,7 @@
 #include <boost/noncopyable.hpp>
 #include <boost/scoped_ptr.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/any.hpp>
 
 class Channel;
 class EventLoop;
@@ -74,6 +75,12 @@ class TcpConnection : boost ::noncopyable,
       //called when TcpServer has removed me from its map
       void connectDestroyed();  // should be called only once
 
+      void setContext(const boost::any& context)
+      { context_ = context; }
+
+      const boost::any& getContext() const 
+      { return context_; }
+
  private:
       enum StateE { kConnecting,kConnected,kDisconnecting,kDisconnected, };
       void setState(StateE s){ state_ = s;}
@@ -104,6 +111,8 @@ class TcpConnection : boost ::noncopyable,
       size_t highWaterMark_;
       Buffer inputBuffer_;
       Buffer outputBuffer_;
+
+      boost::any context_;
 };
 
 typedef boost::shared_ptr<TcpConnection> TcpConnectionPtr;

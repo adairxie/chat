@@ -62,6 +62,12 @@ class TcpClient : boost::noncopyable
   void setWriteCompleteCallback(const WriteCompleteCallback& cb)
   { writeCompleteCallback_ = cb; }
 
+  void setContext(boost::any& conntext)
+  { context_ = context; }
+
+  boost::any* getContext()
+  { return &context_; }
+
 #ifdef __GXX_EXPERIMENTAL_CXX0X__
   void setConnectionCallback(ConnectionCallback&& cb)
   { connectionCallback_ = std::move(cb); }
@@ -89,6 +95,7 @@ class TcpClient : boost::noncopyable
   int nextConnId_;
   mutable MutexLock mutex_;
   TcpConnectionPtr connection_; // @GuardedBy mutex_
+  boost::any context_;
 };
 
 

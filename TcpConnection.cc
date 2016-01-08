@@ -248,26 +248,32 @@ void TcpConnection::handleWrite()
 	ssize_t n= ::write(channel_->fd(),
 			   outputBuffer_.peek(),
 			   outputBuffer_.readableBytes());
-	if( n > 0){
+      if( n > 0){
 	    outputBuffer_.retrieve(n);
 	    if(outputBuffer_.readableBytes() == 0 ) {
-		channel_->disableWriting();
-		if(writeCompleteCallback_){
-		    loop_->queueInLoop(
+		    channel_->disableWriting();
+		    if(writeCompleteCallback_){
+		        loop_->queueInLoop(
 		        boost::bind(writeCompleteCallback_,shared_from_this()));
-		}
-		if(state_ == kDisconnecting){
-	          shutdownInLoop();
-		}
-	   }else{
+		    }
+		    if(state_ == kDisconnecting){
+	             shutdownInLoop();
+		    }
+	   }
+       else
+       {
 	      LOG_TRACE << "I am going to write more data";
 	   }
-	}else {
+    }
+    else 
+    {
 	   LOG_SYSERR << "TcpConnection::handleWrite";
-	}
-   } else {
+    }
+  } 
+  else 
+  {
       LOG_TRACE << "Connection is down, no more writing";
-   }
+  }
 }
 
 void TcpConnection::handleClose()
