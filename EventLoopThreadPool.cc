@@ -4,14 +4,15 @@
 
 #include <boost/bind.hpp>
 
-EventLoopThreadPool::EventLoopThreadPool(EventLoop* baseLoop)
+
+EventLoopThreadPool::EventLoopThreadPool(EventLoop* baseLoop, const std::string& nameArg)
 	:baseLoop_(baseLoop),
 	started_(false),
-	numThreads_(0),
-	next_(0)
+    name_(nameArg),
+    numThreads_(0),
+    next_(0)
 {
 }
-
 
 EventLoopThreadPool::~EventLoopThreadPool()
 {

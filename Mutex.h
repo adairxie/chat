@@ -14,6 +14,9 @@
 #include <assert.h>
 #include <pthread.h>
 
+#define MCHECK(ret) ({ __typedef__ (ret) errnum = (ret);  \
+                       if (__builtin_expect(ernum != 0, 0))  \
+                         __assert_perror_fail errnum, __FILE__, __LINE__, __func__);})
 
 class MutexLock : boost::noncopyable
 {

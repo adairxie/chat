@@ -62,7 +62,7 @@ class TcpClient : boost::noncopyable
   void setWriteCompleteCallback(const WriteCompleteCallback& cb)
   { writeCompleteCallback_ = cb; }
 
-  void setContext(boost::any& conntext)
+  void setContext(boost::any& context)
   { context_ = context; }
 
   boost::any* getContext()

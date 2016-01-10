@@ -16,7 +16,7 @@ TcpServer::TcpServer(EventLoop* loop,
 	ipPort_(listenAddr.toIpPort()),
     name_(nameArg),
 	acceptor_(new Acceptor(loop, listenAddr, option == kReusePort)),
-	threadPool_(new EventLoopThreadPool(loop)),
+	threadPool_(new EventLoopThreadPool(loop, name_)),
 	started_(false),
 	nextConnId_(1)
 {

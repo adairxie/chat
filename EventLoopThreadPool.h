@@ -18,7 +18,7 @@ class EventLoopThread;
 class EventLoopThreadPool : boost::noncopyable
 {
    public:
-     EventLoopThreadPool(EventLoop* baseLoop);
+     EventLoopThreadPool(EventLoop* baseLoop, const std::string& nameArg);
      ~EventLoopThreadPool();
      void setThreadNum( int numThreads) { numThreads_ = numThreads;}
      void start();
@@ -27,6 +27,7 @@ class EventLoopThreadPool : boost::noncopyable
   private:
      EventLoop* baseLoop_;
      bool started_;
+     std::string name_;
      int numThreads_;
      int next_;   //always in loop thread
      boost::ptr_vector<EventLoopThread> threads_;
