@@ -14,9 +14,11 @@ TcpServer::TcpServer(EventLoop* loop,
                     Option option)
 	:loop_(loop),
 	ipPort_(listenAddr.toIpPort()),
-    name_(nameArg),
+  name_(nameArg),
 	acceptor_(new Acceptor(loop, listenAddr, option == kReusePort)),
 	threadPool_(new EventLoopThreadPool(loop, name_)),
+  connectionCallback_(defaultConnectionCallback),
+  messageCallback_(defaultMessageCallback),
 	started_(false),
 	nextConnId_(1)
 {

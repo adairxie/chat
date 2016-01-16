@@ -14,7 +14,7 @@ public:
     {
         if (!t_value_)
         {
-            t_valiue = new T();
+            t_value_ = new T();
             deleter_.set(t_value_);
         }
         return *t_value_;
@@ -43,7 +43,7 @@ private:
     public:
         Deleter()
         {
-            pthread_key_create(&pkey_, &ThreadLocalSingleto::destructor);
+            pthread_key_create(&pkey_, &ThreadLocalSingleton::destructor);
         }
         
         ~Deleter()
@@ -67,7 +67,7 @@ private:
 };
 
 template<typename T>
-__thread T* ThreadLocalSingleton<T>::t_value = 0;
+__thread T* ThreadLocalSingleton<T>::t_value_ = 0;
 
 template<typename T>
 typename ThreadLocalSingleton<T>::Deleter ThreadLocalSingleton<T>::deleter_;

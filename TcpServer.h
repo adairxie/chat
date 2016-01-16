@@ -16,6 +16,7 @@ class EventLoopThreadPool;
 class TcpServer: boost::noncopyable
 {
   public:
+    typedef boost::function<void(EventLoop*)> ThreadInitCallback;
      enum Option
      {
         kNoReusePort,
@@ -36,7 +37,6 @@ class TcpServer: boost::noncopyable
      ///
      ///It's harmless to call ut multiple times.
      ///Thread safe.
-     void start();
 
      //Set the number of threads for handling inpur.
      //
@@ -48,7 +48,15 @@ class TcpServer: boost::noncopyable
      //- N means a thread pool with N threads, new connections
      //are assigned on a round-robin basis/
      void setThreadNum(int numThreads);
+     void setThreadInitCallback(const ThreadInitCallback& cb)
+     { threadInitCallback_ = cb; }
+     
+     boost::shared_ptr<EventLoopThreadPool> threadPool()
+     { return threadPool_; }
 
+     ///Starts the server if it's not listening.
+     ///
+     void start();
 
 
      ///Set connection callback.
@@ -79,10 +87,11 @@ class TcpServer: boost::noncopyable
      const std::string ipPort_;
      const std::string name_;
      boost::scoped_ptr<Acceptor> acceptor_;  // avoid revealing Acceptor
-     boost::scoped_ptr<EventLoopThreadPool> threadPool_;
+     boost::shared_ptr<EventLoopThreadPool> threadPool_;
      ConnectionCallback connectionCallback_;
      MessageCallback messageCallback_;
      WriteCompleteCallback writeCompleteCallback_;
+     ThreadInitCallback threadInitCallback_;
      bool started_;
      int nextConnId_;  //always in loop thread
      ConnectionMap connections_;

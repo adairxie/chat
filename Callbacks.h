@@ -22,4 +22,8 @@ typedef boost::function<void (const TcpConnectionPtr&)> WriteCompleteCallback;
 typedef boost::function<void (const TcpConnectionPtr&, size_t)> HighWaterMarkCallback;
 typedef boost::function<void (const TcpConnectionPtr&)> CloseCallback;
 
+void defaultConnectionCallback(const TcpConnectionPtr& conn);
+void defaultMessageCallback(const TcpConnectionPtr& conn,
+                            Buffer* buf,
+                            Timestamp receiveTime);
 #endif
