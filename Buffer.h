@@ -9,12 +9,14 @@
 #define MUDUO_NET_BUFFER_H
 
 #include "copyable.h"
+#include "Endian.h"
 
 #include <algorithm>
 #include <string>
 #include <vector>
 
 #include <assert.h>
+#include <string.h>
 //#include <unistd.h>  // ssize_t
 
 
@@ -120,6 +122,46 @@ class Buffer : public muduo::copyable
   void append(const void* /*restrict*/ data, size_t len)
   {
     append(static_cast<const char*>(data), len);
+  }
+
+  ///
+  /// Append int64_t using network endian
+  //.
+  void appendInt64(int64_t x)
+  {
+    int64_t be64 = sockets::hostToNetwork64(x);
+    append(&be64, sizeof be64);
+  }
+
+  ///
+  /// Append int32_t using network endian
+  ///
+  void appendInt32(int32_t x)
+  {
+    int32_t be32 = sockets::hostToNetwork32(x);
+    append(&be32, sizeof be32);
+  }
+
+  ///
+  /// Peek int64_t from network endian
+  ///
+  int64_t peekInt64() const
+  {
+    assert(readableBytes() >= sizeof(int64_t));
+    int64_t be64 = 0;
+    ::memcpy(&be64, peek(), sizeof be64);
+    return sockets::networkToHost64(be64);
+  }
+
+  ///
+  /// Peek int32_t from network endian
+  ///
+  int32_t peekInt32() const
+  {
+    assert(readableBytes() >= sizeof(int32_t));
+    int32_t be32 = 0;
+    ::memcpy(&be32, peek(), sizeof(int32_t));
+    return sockets::networkToHost32(be32);
   }
 
   void ensureWritableBytes(size_t len)
