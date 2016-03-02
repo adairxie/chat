@@ -42,14 +42,14 @@ void TcpServer::start()
 {
   if(!started_)
   {
-     started_ = true;
-  }
-  
-  if(!acceptor_->listening())
-  {
-     loop_->runInLoop(
+    started_ = true;
+		threadPool_->start();
+  	if(!acceptor_->listening())
+  	{
+    	loop_->runInLoop(
         boost::bind(&Acceptor::listen, get_pointer(acceptor_)));
-  } 
+  	} 
+	}
 }
 
 void TcpServer::newConnection(int sockfd,const InetAddress& peerAddr)
@@ -60,11 +60,11 @@ void TcpServer::newConnection(int sockfd,const InetAddress& peerAddr)
    ++nextConnId_;
    std::string connName = name_ + buf;
 
-   LOG_INFO <<"TcpServer::newConnection ["<< name_ <<
-	   "] - new connection [" << connName << "] from " <<peerAddr.toIpPort();
    InetAddress localAddr(sockets::getLocalAddr(sockfd));
    //Poll with zedro timeout to doule confirm the new connection
    EventLoop* ioLoop =threadPool_->getNextLoop();
+   LOG_INFO <<"tid "<<ioLoop->getThreadId()<<" " <<"TcpServer::newConnection ["<< name_ <<
+	   "] - new connection [" << connName << "] from " <<peerAddr.toIpPort();
    TcpConnectionPtr conn(
      new TcpConnection(ioLoop,connName,sockfd,localAddr,peerAddr));
    connections_[connName]=conn;

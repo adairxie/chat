@@ -72,6 +72,7 @@ class EventLoop:boost::noncopyable
       }
     }
     bool isInLoopThread() const { return threadId_ == CurrentThread::tid(); }
+		pid_t getThreadId() const { return threadId_; }
     static EventLoop* getEventLoopOfCurrentThread();
   private:
 
