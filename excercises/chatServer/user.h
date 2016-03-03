@@ -18,6 +18,7 @@ public:
 //  void requestAddUser(string accountName);
   void addConversation(PrivateChat conversation);
   void addConversation(GroupChat conversation);
+	void createGroup();
   int getId();
   string getAccountName();
 
