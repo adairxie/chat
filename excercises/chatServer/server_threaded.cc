@@ -82,7 +82,12 @@ private:
 			answer.set_answerer("Chen Shuo");
 			answer.add_solution("Fuck off!!!!");
 			answer.add_solution("Son of a Bitch!");
-			codec_.send(conn, answer);
+			
+			MutexLockGuard lock(mutex_);
+			for (ConnectionList::iterator it = connections_.begin(); it != connections_.end(); ++it)
+			{
+				codec_.send(*it, answer);
+			}
 		}
 
 		void onAnswer(const TcpConnectionPtr& conn,

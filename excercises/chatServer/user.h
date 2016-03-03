@@ -11,26 +11,26 @@ public:
   bool sendMessageToGroupChat(int id, string content);
   void setStatus(UserStatus status);
   UserStatus getStatus();
-  bool addContact(User user);
-  void receivedAddRequest(AddRequest req);
-  void sentAddRequest(AddRequest req);
-  void removeAddRequest(AddRequest req);
-  void requestAddUser(string accountName);
+//  bool addContact(User user);
+//  void receivedAddRequest(AddRequest req);
+//  void sentAddRequest(AddRequest req);
+//  void removeAddRequest(AddRequest req);
+//  void requestAddUser(string accountName);
   void addConversation(PrivateChat conversation);
   void addConversation(GroupChat conversation);
   int getId();
   string getAccountName();
-  string getFullName();
 
 private:
   int id_;
+  string accountName_;
   UserStatus status_;
   
   //others'id -> chat
   boost::unordered_map<int, PrivateChat> privateChats_;
 
   //groupId -> group
-  vector<GroupChat> groupChats_;
+	boost::unoreder_map<int, GroupChat> groupChats_;
 
   //map others'id to addRequest
   boost::unordered_map<int, AddRequest> receivedAddRequests_;
@@ -39,10 +39,7 @@ private:
   boost::unordered_map<int, AddRequest> sentAddRequests_;
 
   //map users'id to User
-  boost::unordered_map<int, User> contacts_;
-
-  string accountName_;
-  string fullName_;
+  //boost::unordered_map<int, User> contacts_;
 
 };
 
