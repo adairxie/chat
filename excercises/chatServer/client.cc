@@ -1,4 +1,6 @@
-#include "codec.h"
+#include "codec/codec.h"
+#include "codec/dispatcher.h"
+#include "codec/query.pb.h"
 
 #include "../../Logging.h"
 #include "../../Mutex.h"
@@ -11,17 +13,27 @@
 #include <iostream>
 #include <stdio.h>
 
+typedef boost::shared_ptr<im::Empty> EmptyPtr;
+typedef boost::shared_ptr<im::Answer> AnswerPtr;
+
+google::protobuf::Message* messageToSend;
+
 class ChatClient : boost::noncopyable
 {
 public: 
    ChatClient(EventLoop* loop, const InetAddress& serverAddr)
        : client_(loop, serverAddr, "ChatClient"),
-       codec_(boost::bind(&ChatClient::onStringMessage, this, _1, _2, _3))
+			 dispatcher_(boost::bind(&ChatClient::onUnknownMessage, this, _1, _2, _3)),
+       codec_(boost::bind(&ProtobufDispatcher::onProtobufMessage, &dispatcher_, _1, _2, _3))
     {
+				dispatcher_.registerMessageCallback<im::Answer>(
+						boost::bind(&ChatClient::onAnswer, this, _1, _2, _3));
+				dispatcher_.registerMessageCallback<im::Empty>(
+						boost::bind(&ChatClient::onEmpty, this, _1, _2, _3));
         client_.setConnectionCallback(
                 boost::bind(&ChatClient::onConnection, this, _1));
         client_.setMessageCallback(
-                boost::bind(&LengthHeaderCodec::onMessage, &codec_, _1, _2, _3));
+                boost::bind(&ProtobufCodec::onMessage, &codec_, _1, _2, _3));
         client_.enableRetry();
         
     }
@@ -41,7 +53,7 @@ public:
         MutexLockGuard lock(mutex_);
         if (connection_)
         {
-            codec_.send(get_pointer(connection_), message);
+       //     codec_.send(get_pointer(connection_), message);
         }
    }
 
@@ -54,6 +66,7 @@ private:
 
         if (conn->connected())
         {
+						codec_.send(conn, *messageToSend);
             connection_ = conn;
         }
         else
@@ -62,15 +75,31 @@ private:
         }
     }
 
-    void onStringMessage(const TcpConnectionPtr& conn,
-                        const std::string& message,
-                        Timestamp)
-    {
-        printf("<<< %s\n", message.c_str());
-    }
+		void onUnknownMessage(const TcpConnectionPtr& conn,
+													const MessagePtr& message,
+													Timestamp)
+		{
+			LOG_INFO << "onUnknownMessage: " << message->GetTypeName();
+		}
+
+		void onAnswer(const TcpConnectionPtr&,
+				const AnswerPtr& message,
+				Timestamp)
+		{
+			LOG_INFO << "onAnswer:\n" << message->GetTypeName() << message->DebugString();
+		}
+
+		void onEmpty(const TcpConnectionPtr&,
+								 const EmptyPtr& message,
+								 Timestamp)
+		{
+			LOG_INFO << "onEmpty: " << message->GetTypeName();
+		}
+
     
     TcpClient client_;
-    LengthHeaderCodec codec_;
+		ProtobufDispatcher dispatcher_;
+    ProtobufCodec codec_;
     MutexLock mutex_;
     TcpConnectionPtr connection_;
 };
@@ -85,13 +114,24 @@ int main(int argc, char* argv[])
         uint16_t port = static_cast<uint16_t>(atoi(argv[2]));
         InetAddress serverAddr(argv[1], port);
 
+				im::Query query;
+				query.set_id(1);
+				query.set_questioner("Xie Hui");
+				query.add_question("Is it Running?");
+				im::Empty empty;
+				messageToSend = &query;
+
+				if (argc > 3 && argv[3][0] == 'e')
+				{
+					messageToSend = &empty;
+				}
         ChatClient client(loopThread.startLoop(), serverAddr);
         client.connect();
-        std::string line;
-        while (std::getline(std::cin, line))
-        {
-            client.write(line);
-        }
+				
+				std::string line;
+				while (getline(std::cin, line)) {
+						
+				}
         client.disconnect();
         CurrentThread::sleepUsec(1000*1000);
     }

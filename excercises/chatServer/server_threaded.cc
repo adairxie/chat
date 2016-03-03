@@ -1,4 +1,6 @@
-#include "codec.h"
+#include "codec/codec.h"
+#include "codec/dispatcher.h"
+#include "codec/query.pb.h"
 
 #include "../../Logging.h"
 #include "../../Mutex.h"
@@ -10,18 +12,27 @@
 #include <set>
 #include <stdio.h>
 
+typedef boost::shared_ptr<im::Query> QueryPtr;
+typedef boost::shared_ptr<im::Answer> AnswerPtr;
+
+
 class ChatServer : boost::noncopyable
 {
 public:
     ChatServer(EventLoop* loop,
             const InetAddress& listenAddr)
         : server_(loop, listenAddr, "ChatServer"),
-        codec_(boost::bind(&ChatServer::onStringMessage, this, _1, _2, _3))
+				dispatcher_(boost::bind(&ChatServer::onUnknownMessage, this, _1, _2, _3)),
+        codec_(boost::bind(&ProtobufDispatcher::onProtobufMessage, &dispatcher_, _1, _2, _3))
     {
+				dispatcher_.registerMessageCallback<im::Query>(
+						boost::bind(&ChatServer::onQuery, this, _1, _2, _3));
+				dispatcher_.registerMessageCallback<im::Answer>(
+						boost::bind(&ChatServer::onAnswer, this, _1, _2, _3));
         server_.setConnectionCallback(
                 boost::bind(&ChatServer::onConnection, this, _1));
         server_.setMessageCallback(
-                boost::bind(&LengthHeaderCodec::onMessage, &codec_, _1, _2, _3));
+                boost::bind(&ProtobufCodec::onMessage, &codec_, _1, _2, _3));
     }
 
     void setThreadNum(int numThreads)
@@ -52,20 +63,50 @@ private:
         }
     }
 
-    void onStringMessage(const TcpConnectionPtr& conn,
+		void onUnknownMessage(const TcpConnectionPtr& conn,
+													const MessagePtr& message,
+													Timestamp)
+		{
+			LOG_INFO << "onUnkownMessage: " << message->GetTypeName();
+			//conn->shutdown();
+		}
+		
+		void onQuery(const TcpConnectionPtr& conn, 
+								 const QueryPtr& message,
+								 Timestamp)
+		{
+			LOG_INFO << "onQuery:\n" << message->GetTypeName() << message->DebugString();
+			im::Answer answer;
+			answer.set_id(10000);
+			answer.set_questioner("Xie Hui");
+			answer.set_answerer("Chen Shuo");
+			answer.add_solution("Fuck off!!!!");
+			answer.add_solution("Son of a Bitch!");
+			codec_.send(conn, answer);
+		}
+
+		void onAnswer(const TcpConnectionPtr& conn,
+									 const AnswerPtr& message, 
+									 Timestamp)
+		{
+			LOG_INFO << "onAnswer: " << message->GetTypeName();
+		}
+
+/*    void onStringMessage(const TcpConnectionPtr& conn,
             const std::string& message,
             Timestamp receiveTime)
     {
         MutexLockGuard lock(mutex_);
         for (ConnectionList::iterator it = connections_.begin(); it != connections_.end(); it++)
         {
-            codec_.send(get_pointer(*it), message);
+            //codec_.send(get_pointer(*it), message);
         }
     }
-
+*/
     typedef std::set<TcpConnectionPtr> ConnectionList;
     TcpServer server_;
-    LengthHeaderCodec codec_;
+		ProtobufDispatcher dispatcher_;
+    ProtobufCodec codec_;
     MutexLock mutex_;
     ConnectionList connections_;
 };
