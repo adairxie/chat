@@ -4,7 +4,7 @@
 
 #include "../../Logging.h"
 #include "../../Mutex.h"
-#include "../../EventLoopThread.h"
+#include "../../EventLoop.h"
 #include "../../TcpClient.h"
 
 #include <boost/bind.hpp>
@@ -110,7 +110,7 @@ int main(int argc, char* argv[])
     LOG_INFO << "pid = " << getpid();
     if (argc > 2)
     {
-        EventLoopThread loopThread;
+        EventLoop loop;
         uint16_t port = static_cast<uint16_t>(atoi(argv[2]));
         InetAddress serverAddr(argv[1], port);
 
@@ -125,14 +125,9 @@ int main(int argc, char* argv[])
 				{
 					messageToSend = &empty;
 				}
-        ChatClient client(loopThread.startLoop(), serverAddr);
+        ChatClient client(&loop, serverAddr);
         client.connect();
-				
-				std::string line;
-				while (getline(std::cin, line)) {
-						
-				}
-        client.disconnect();
+			  loop.loop();	
         CurrentThread::sleepUsec(1000*1000);
     }
     else
