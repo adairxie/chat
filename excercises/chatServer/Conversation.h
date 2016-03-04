@@ -1,37 +1,36 @@
 #ifndef CONVERSATION_H
 #define CONVERSATION_H
 
+#include <list>
+#include <vector>
+#include <string>
+#include <map>
+#include "../../Timestamp.h"
 
+#include "user.h"
+#include <boost/noncopyable.hpp>
 
-class Message
-{
-public:
-  Message(string content, Data date);
-  string getContent();
-  Date getDate();
-
-private:
-  string content_;
-  Date date;
-};
-
+class User;
 
 class Conversation : boost::noncopyable
 {
 public:
- list<Message> getMessages();
- bool addMessage(Message m);
+ Conversation(std::string name);
+ std::string getMessages(Timestamp);
+ void addMessage(std::string message);
  int getId();
 
 protected:
-  vector<User> participants_;
   int id_;
-  list<Message> messages_;
+	std::string name_; 
+  std::vector<User> participants_;
+	std::map<Timestamp, std::string> messages_;
 };
 
 class GroupChat : public Conversation 
 {
 public:
+	GroupChat(std::string name):Conversation(name) { }
   void removeParticipant(User user);
   void addParticipant(User user);
 };

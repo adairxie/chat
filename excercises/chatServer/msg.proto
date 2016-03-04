@@ -1,0 +1,36 @@
+package im;
+
+message SignUp {
+	required string name = 1;
+	required string passwd = 2;
+}
+
+message Login {
+	required int64 uid = 1;
+	required string passwd = 2;
+}
+
+message CreateGroup {
+	required int64 gid = 1;
+	required string  gname = 2;
+}
+
+message AddGroup {
+	required int64 gid = 1;
+	required string gname = 2;
+}
+
+message GMessage {
+	required int64 gid = 1;
+	repeated string gmessage = 2;
+}
+
+message PMessage {
+	required int64 uid = 1;
+	required string uname = 2;
+	required string content = 3;
+}
+
+message Empty {
+	optional int32 id = 1;
+}
