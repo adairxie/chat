@@ -1,6 +1,7 @@
 #include "codec/codec.h"
 #include "codec/dispatcher.h"
-#include "codec/query.pb.h"
+#include "msg.pb.h"
+#include "mysql_connection.h"
 
 #include "../../Logging.h"
 #include "../../Mutex.h"
@@ -8,13 +9,19 @@
 #include "../../TcpServer.h"
 
 #include <boost/bind.hpp>
+#include <boost/make_shared.hpp>
 
 #include <set>
 #include <stdio.h>
 
-typedef boost::shared_ptr<im::Query> QueryPtr;
-typedef boost::shared_ptr<im::Answer> AnswerPtr;
+using namespace im;
 
+typedef boost::shared_ptr<SignUp> SignUpPtr;
+typedef boost::shared_ptr<Login>  LoginPtr;
+typedef boost::shared_ptr<PMessage> PMessagePtr;
+typedef boost::shared_ptr<MysqlConnection> PMysqlConnectionPtr;
+
+const char* insertFmt = "INSERT INTO userinfo(user_name, password) VALUES(\'%s\', \'%s\')";
 
 class ChatServer : boost::noncopyable
 {
@@ -25,15 +32,28 @@ public:
 				dispatcher_(boost::bind(&ChatServer::onUnknownMessage, this, _1, _2, _3)),
         codec_(boost::bind(&ProtobufDispatcher::onProtobufMessage, &dispatcher_, _1, _2, _3))
     {
-				dispatcher_.registerMessageCallback<im::Query>(
-						boost::bind(&ChatServer::onQuery, this, _1, _2, _3));
-				dispatcher_.registerMessageCallback<im::Answer>(
-						boost::bind(&ChatServer::onAnswer, this, _1, _2, _3));
+				dispatcher_.registerMessageCallback<SignUp>(
+						boost::bind(&ChatServer::onSignUp, this, _1, _2, _3));
+				dispatcher_.registerMessageCallback<Login>(
+						boost::bind(&ChatServer::onLogin, this, _1, _2, _3));
+				dispatcher_.registerMessageCallback<PMessage>(
+						boost::bind(&ChatServer::onPMessage, this, _1, _2, _3));
         server_.setConnectionCallback(
                 boost::bind(&ChatServer::onConnection, this, _1));
         server_.setMessageCallback(
                 boost::bind(&ProtobufCodec::onMessage, &codec_, _1, _2, _3));
+
+				mysql_ = boost::make_shared<MysqlConnection>(); 
     }
+
+		int initMysql(const char* host, const char* user, const char* password, const char* db, int port = 3306)
+		{
+			if (mysql_->init(host, user, password, port) != 0)
+				return -1;
+			mysql_->use(db);
+			return 0;
+		}
+		
 
     void setThreadNum(int numThreads)
     {
@@ -71,30 +91,34 @@ private:
 			//conn->shutdown();
 		}
 		
-		void onQuery(const TcpConnectionPtr& conn, 
-								 const QueryPtr& message,
+		void onSignUp(const TcpConnectionPtr& conn, 
+								 const SignUpPtr& message,
 								 Timestamp)
 		{
-			LOG_INFO << "onQuery:\n" << message->GetTypeName() << message->DebugString();
-			im::Answer answer;
-			answer.set_id(10000);
-			answer.set_questioner("Xie Hui");
-			answer.set_answerer("Chen Shuo");
-			answer.add_solution("Fuck off!!!!");
-			answer.add_solution("Son of a Bitch!");
-			
-			MutexLockGuard lock(mutex_);
+			LOG_INFO << "onSignUp:\n" << message->GetTypeName() << message->DebugString();
+			const char* name = message->name().c_str();
+			const char* passwd = message->passwd().c_str();
+			mysql_->exec_format(insertFmt, name, passwd);
+  /*			MutexLockGuard lock(mutex_);
 			for (ConnectionList::iterator it = connections_.begin(); it != connections_.end(); ++it)
 			{
 				codec_.send(*it, answer);
 			}
+			*/
 		}
 
-		void onAnswer(const TcpConnectionPtr& conn,
-									 const AnswerPtr& message, 
+		void onLogin(const TcpConnectionPtr& conn,
+									 const LoginPtr& message, 
 									 Timestamp)
 		{
-			LOG_INFO << "onAnswer: " << message->GetTypeName();
+			LOG_INFO << "onLogin: " << message->GetTypeName();
+		}
+
+		void onPMessage(const TcpConnectionPtr& conn,
+										const PMessagePtr& message,
+										Timestamp)
+		{
+			LOG_INFO << "onPMessage: " << message->DebugString();
 		}
 
 /*    void onStringMessage(const TcpConnectionPtr& conn,
@@ -114,6 +138,7 @@ private:
     ProtobufCodec codec_;
     MutexLock mutex_;
     ConnectionList connections_;
+		PMysqlConnectionPtr mysql_;
 };
 
 int main(int argc, char* argv[])
@@ -129,6 +154,7 @@ int main(int argc, char* argv[])
         {
             server.setThreadNum(atoi(argv[2]));
         }
+				server.initMysql("localhost", "root", "242785a", "chat");
         server.start();
         loop.loop();
     }

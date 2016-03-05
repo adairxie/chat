@@ -1,6 +1,6 @@
 #include "codec/codec.h"
 #include "codec/dispatcher.h"
-#include "codec/query.pb.h"
+#include "msg.pb.h"
 
 #include "../../Logging.h"
 #include "../../Mutex.h"
@@ -11,12 +11,16 @@
 #include <boost/noncopyable.hpp>
 
 #include <iostream>
+#include <string>
 #include <stdio.h>
 
-typedef boost::shared_ptr<im::Empty> EmptyPtr;
-typedef boost::shared_ptr<im::Answer> AnswerPtr;
+using namespace im; //message namespace 
+
+typedef boost::shared_ptr<Empty> EmptyPtr;
+typedef boost::shared_ptr<PMessage> pMessagePtr;
 
 google::protobuf::Message* messageToSend;
+
 
 class ChatClient : boost::noncopyable
 {
@@ -26,9 +30,9 @@ public:
 			 dispatcher_(boost::bind(&ChatClient::onUnknownMessage, this, _1, _2, _3)),
        codec_(boost::bind(&ProtobufDispatcher::onProtobufMessage, &dispatcher_, _1, _2, _3))
     {
-				dispatcher_.registerMessageCallback<im::Answer>(
-						boost::bind(&ChatClient::onAnswer, this, _1, _2, _3));
-				dispatcher_.registerMessageCallback<im::Empty>(
+				dispatcher_.registerMessageCallback<PMessage>(
+						boost::bind(&ChatClient::onPrivateChat, this, _1, _2, _3));
+				dispatcher_.registerMessageCallback<Empty>(
 						boost::bind(&ChatClient::onEmpty, this, _1, _2, _3));
         client_.setConnectionCallback(
                 boost::bind(&ChatClient::onConnection, this, _1));
@@ -82,11 +86,11 @@ private:
 			LOG_INFO << "onUnknownMessage: " << message->GetTypeName();
 		}
 
-		void onAnswer(const TcpConnectionPtr&,
-				const AnswerPtr& message,
+		void onPrivateChat(const TcpConnectionPtr&,
+				const pMessagePtr& message,
 				Timestamp)
 		{
-			LOG_INFO << "onAnswer:\n" << message->GetTypeName() << message->DebugString();
+			LOG_INFO << "onpMessage:\n" << message->GetTypeName() << message->DebugString();
 		}
 
 		void onEmpty(const TcpConnectionPtr&,
@@ -114,12 +118,17 @@ int main(int argc, char* argv[])
         uint16_t port = static_cast<uint16_t>(atoi(argv[2]));
         InetAddress serverAddr(argv[1], port);
 
-				im::Query query;
-				query.set_id(1);
-				query.set_questioner("Xie Hui");
-				query.add_question("Is it Running?");
-				im::Empty empty;
-				messageToSend = &query;
+				SignUp signUp;
+				std::string name;
+				std::string passwd;
+				std::cout <<"    name: " << std::endl;
+				getline(std::cin, name);
+				std::cout <<"password: " << std::endl;
+				getline(std::cin, passwd);
+				signUp.set_name(name);
+				signUp.set_passwd(passwd);
+				Empty empty;
+				messageToSend = &signUp;
 
 				if (argc > 3 && argv[3][0] == 'e')
 				{
