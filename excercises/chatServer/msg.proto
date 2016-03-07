@@ -12,24 +12,36 @@ message Login {
 
 message CreateGroup {
 	required int64 gid = 1;
-	required string  gname = 2;
 }
 
 message AddGroup {
 	required int64 gid = 1;
-	required string gname = 2;
 }
 
 message GMessage {
 	required int64 gid = 1;
-	repeated string gmessage = 2;
+	required string content = 2;
 }
 
 message PMessage {
 	required int64 uid = 1;
-	required string uname = 2;
+	required int64 peerid = 2;
 	required string content = 3;
 }
+
+message Success {
+	required int64 uid = 1;
+}
+
+message Quit {
+	required int64 uid = 1;
+}
+
+message Failure {
+	required int64 uid = 1;
+	required string erro = 2;
+}
+
 
 message Empty {
 	optional int32 id = 1;

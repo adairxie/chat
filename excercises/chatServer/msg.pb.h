@@ -39,6 +39,9 @@ class CreateGroup;
 class AddGroup;
 class GMessage;
 class PMessage;
+class Success;
+class Quit;
+class Failure;
 class Empty;
 
 // ===================================================================
@@ -303,32 +306,17 @@ class CreateGroup : public ::google::protobuf::Message {
   inline ::google::protobuf::int64 gid() const;
   inline void set_gid(::google::protobuf::int64 value);
 
-  // required string gname = 2;
-  inline bool has_gname() const;
-  inline void clear_gname();
-  static const int kGnameFieldNumber = 2;
-  inline const ::std::string& gname() const;
-  inline void set_gname(const ::std::string& value);
-  inline void set_gname(const char* value);
-  inline void set_gname(const char* value, size_t size);
-  inline ::std::string* mutable_gname();
-  inline ::std::string* release_gname();
-  inline void set_allocated_gname(::std::string* gname);
-
   // @@protoc_insertion_point(class_scope:im.CreateGroup)
  private:
   inline void set_has_gid();
   inline void clear_has_gid();
-  inline void set_has_gname();
-  inline void clear_has_gname();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
   ::google::protobuf::int64 gid_;
-  ::std::string* gname_;
 
   mutable int _cached_size_;
-  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(1 + 31) / 32];
 
   friend void  protobuf_AddDesc_msg_2eproto();
   friend void protobuf_AssignDesc_msg_2eproto();
@@ -400,32 +388,17 @@ class AddGroup : public ::google::protobuf::Message {
   inline ::google::protobuf::int64 gid() const;
   inline void set_gid(::google::protobuf::int64 value);
 
-  // required string gname = 2;
-  inline bool has_gname() const;
-  inline void clear_gname();
-  static const int kGnameFieldNumber = 2;
-  inline const ::std::string& gname() const;
-  inline void set_gname(const ::std::string& value);
-  inline void set_gname(const char* value);
-  inline void set_gname(const char* value, size_t size);
-  inline ::std::string* mutable_gname();
-  inline ::std::string* release_gname();
-  inline void set_allocated_gname(::std::string* gname);
-
   // @@protoc_insertion_point(class_scope:im.AddGroup)
  private:
   inline void set_has_gid();
   inline void clear_has_gid();
-  inline void set_has_gname();
-  inline void clear_has_gname();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
   ::google::protobuf::int64 gid_;
-  ::std::string* gname_;
 
   mutable int _cached_size_;
-  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(1 + 31) / 32];
 
   friend void  protobuf_AddDesc_msg_2eproto();
   friend void protobuf_AssignDesc_msg_2eproto();
@@ -497,31 +470,29 @@ class GMessage : public ::google::protobuf::Message {
   inline ::google::protobuf::int64 gid() const;
   inline void set_gid(::google::protobuf::int64 value);
 
-  // repeated string gmessage = 2;
-  inline int gmessage_size() const;
-  inline void clear_gmessage();
-  static const int kGmessageFieldNumber = 2;
-  inline const ::std::string& gmessage(int index) const;
-  inline ::std::string* mutable_gmessage(int index);
-  inline void set_gmessage(int index, const ::std::string& value);
-  inline void set_gmessage(int index, const char* value);
-  inline void set_gmessage(int index, const char* value, size_t size);
-  inline ::std::string* add_gmessage();
-  inline void add_gmessage(const ::std::string& value);
-  inline void add_gmessage(const char* value);
-  inline void add_gmessage(const char* value, size_t size);
-  inline const ::google::protobuf::RepeatedPtrField< ::std::string>& gmessage() const;
-  inline ::google::protobuf::RepeatedPtrField< ::std::string>* mutable_gmessage();
+  // required string content = 2;
+  inline bool has_content() const;
+  inline void clear_content();
+  static const int kContentFieldNumber = 2;
+  inline const ::std::string& content() const;
+  inline void set_content(const ::std::string& value);
+  inline void set_content(const char* value);
+  inline void set_content(const char* value, size_t size);
+  inline ::std::string* mutable_content();
+  inline ::std::string* release_content();
+  inline void set_allocated_content(::std::string* content);
 
   // @@protoc_insertion_point(class_scope:im.GMessage)
  private:
   inline void set_has_gid();
   inline void clear_has_gid();
+  inline void set_has_content();
+  inline void clear_has_content();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
   ::google::protobuf::int64 gid_;
-  ::google::protobuf::RepeatedPtrField< ::std::string> gmessage_;
+  ::std::string* content_;
 
   mutable int _cached_size_;
   ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
@@ -596,17 +567,12 @@ class PMessage : public ::google::protobuf::Message {
   inline ::google::protobuf::int64 uid() const;
   inline void set_uid(::google::protobuf::int64 value);
 
-  // required string uname = 2;
-  inline bool has_uname() const;
-  inline void clear_uname();
-  static const int kUnameFieldNumber = 2;
-  inline const ::std::string& uname() const;
-  inline void set_uname(const ::std::string& value);
-  inline void set_uname(const char* value);
-  inline void set_uname(const char* value, size_t size);
-  inline ::std::string* mutable_uname();
-  inline ::std::string* release_uname();
-  inline void set_allocated_uname(::std::string* uname);
+  // required int64 peerid = 2;
+  inline bool has_peerid() const;
+  inline void clear_peerid();
+  static const int kPeeridFieldNumber = 2;
+  inline ::google::protobuf::int64 peerid() const;
+  inline void set_peerid(::google::protobuf::int64 value);
 
   // required string content = 3;
   inline bool has_content() const;
@@ -624,15 +590,15 @@ class PMessage : public ::google::protobuf::Message {
  private:
   inline void set_has_uid();
   inline void clear_has_uid();
-  inline void set_has_uname();
-  inline void clear_has_uname();
+  inline void set_has_peerid();
+  inline void clear_has_peerid();
   inline void set_has_content();
   inline void clear_has_content();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
   ::google::protobuf::int64 uid_;
-  ::std::string* uname_;
+  ::google::protobuf::int64 peerid_;
   ::std::string* content_;
 
   mutable int _cached_size_;
@@ -644,6 +610,267 @@ class PMessage : public ::google::protobuf::Message {
 
   void InitAsDefaultInstance();
   static PMessage* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class Success : public ::google::protobuf::Message {
+ public:
+  Success();
+  virtual ~Success();
+
+  Success(const Success& from);
+
+  inline Success& operator=(const Success& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const Success& default_instance();
+
+  void Swap(Success* other);
+
+  // implements Message ----------------------------------------------
+
+  Success* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const Success& from);
+  void MergeFrom(const Success& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // required int64 uid = 1;
+  inline bool has_uid() const;
+  inline void clear_uid();
+  static const int kUidFieldNumber = 1;
+  inline ::google::protobuf::int64 uid() const;
+  inline void set_uid(::google::protobuf::int64 value);
+
+  // @@protoc_insertion_point(class_scope:im.Success)
+ private:
+  inline void set_has_uid();
+  inline void clear_has_uid();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::int64 uid_;
+
+  mutable int _cached_size_;
+  ::google::protobuf::uint32 _has_bits_[(1 + 31) / 32];
+
+  friend void  protobuf_AddDesc_msg_2eproto();
+  friend void protobuf_AssignDesc_msg_2eproto();
+  friend void protobuf_ShutdownFile_msg_2eproto();
+
+  void InitAsDefaultInstance();
+  static Success* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class Quit : public ::google::protobuf::Message {
+ public:
+  Quit();
+  virtual ~Quit();
+
+  Quit(const Quit& from);
+
+  inline Quit& operator=(const Quit& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const Quit& default_instance();
+
+  void Swap(Quit* other);
+
+  // implements Message ----------------------------------------------
+
+  Quit* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const Quit& from);
+  void MergeFrom(const Quit& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // required int64 uid = 1;
+  inline bool has_uid() const;
+  inline void clear_uid();
+  static const int kUidFieldNumber = 1;
+  inline ::google::protobuf::int64 uid() const;
+  inline void set_uid(::google::protobuf::int64 value);
+
+  // @@protoc_insertion_point(class_scope:im.Quit)
+ private:
+  inline void set_has_uid();
+  inline void clear_has_uid();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::int64 uid_;
+
+  mutable int _cached_size_;
+  ::google::protobuf::uint32 _has_bits_[(1 + 31) / 32];
+
+  friend void  protobuf_AddDesc_msg_2eproto();
+  friend void protobuf_AssignDesc_msg_2eproto();
+  friend void protobuf_ShutdownFile_msg_2eproto();
+
+  void InitAsDefaultInstance();
+  static Quit* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class Failure : public ::google::protobuf::Message {
+ public:
+  Failure();
+  virtual ~Failure();
+
+  Failure(const Failure& from);
+
+  inline Failure& operator=(const Failure& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const Failure& default_instance();
+
+  void Swap(Failure* other);
+
+  // implements Message ----------------------------------------------
+
+  Failure* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const Failure& from);
+  void MergeFrom(const Failure& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // required int64 uid = 1;
+  inline bool has_uid() const;
+  inline void clear_uid();
+  static const int kUidFieldNumber = 1;
+  inline ::google::protobuf::int64 uid() const;
+  inline void set_uid(::google::protobuf::int64 value);
+
+  // required string erro = 2;
+  inline bool has_erro() const;
+  inline void clear_erro();
+  static const int kErroFieldNumber = 2;
+  inline const ::std::string& erro() const;
+  inline void set_erro(const ::std::string& value);
+  inline void set_erro(const char* value);
+  inline void set_erro(const char* value, size_t size);
+  inline ::std::string* mutable_erro();
+  inline ::std::string* release_erro();
+  inline void set_allocated_erro(::std::string* erro);
+
+  // @@protoc_insertion_point(class_scope:im.Failure)
+ private:
+  inline void set_has_uid();
+  inline void clear_has_uid();
+  inline void set_has_erro();
+  inline void clear_has_erro();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::int64 uid_;
+  ::std::string* erro_;
+
+  mutable int _cached_size_;
+  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
+
+  friend void  protobuf_AddDesc_msg_2eproto();
+  friend void protobuf_AssignDesc_msg_2eproto();
+  friend void protobuf_ShutdownFile_msg_2eproto();
+
+  void InitAsDefaultInstance();
+  static Failure* default_instance_;
 };
 // -------------------------------------------------------------------
 
@@ -996,76 +1223,6 @@ inline void CreateGroup::set_gid(::google::protobuf::int64 value) {
   gid_ = value;
 }
 
-// required string gname = 2;
-inline bool CreateGroup::has_gname() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
-}
-inline void CreateGroup::set_has_gname() {
-  _has_bits_[0] |= 0x00000002u;
-}
-inline void CreateGroup::clear_has_gname() {
-  _has_bits_[0] &= ~0x00000002u;
-}
-inline void CreateGroup::clear_gname() {
-  if (gname_ != &::google::protobuf::internal::kEmptyString) {
-    gname_->clear();
-  }
-  clear_has_gname();
-}
-inline const ::std::string& CreateGroup::gname() const {
-  return *gname_;
-}
-inline void CreateGroup::set_gname(const ::std::string& value) {
-  set_has_gname();
-  if (gname_ == &::google::protobuf::internal::kEmptyString) {
-    gname_ = new ::std::string;
-  }
-  gname_->assign(value);
-}
-inline void CreateGroup::set_gname(const char* value) {
-  set_has_gname();
-  if (gname_ == &::google::protobuf::internal::kEmptyString) {
-    gname_ = new ::std::string;
-  }
-  gname_->assign(value);
-}
-inline void CreateGroup::set_gname(const char* value, size_t size) {
-  set_has_gname();
-  if (gname_ == &::google::protobuf::internal::kEmptyString) {
-    gname_ = new ::std::string;
-  }
-  gname_->assign(reinterpret_cast<const char*>(value), size);
-}
-inline ::std::string* CreateGroup::mutable_gname() {
-  set_has_gname();
-  if (gname_ == &::google::protobuf::internal::kEmptyString) {
-    gname_ = new ::std::string;
-  }
-  return gname_;
-}
-inline ::std::string* CreateGroup::release_gname() {
-  clear_has_gname();
-  if (gname_ == &::google::protobuf::internal::kEmptyString) {
-    return NULL;
-  } else {
-    ::std::string* temp = gname_;
-    gname_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
-    return temp;
-  }
-}
-inline void CreateGroup::set_allocated_gname(::std::string* gname) {
-  if (gname_ != &::google::protobuf::internal::kEmptyString) {
-    delete gname_;
-  }
-  if (gname) {
-    set_has_gname();
-    gname_ = gname;
-  } else {
-    clear_has_gname();
-    gname_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
-  }
-}
-
 // -------------------------------------------------------------------
 
 // AddGroup
@@ -1090,76 +1247,6 @@ inline ::google::protobuf::int64 AddGroup::gid() const {
 inline void AddGroup::set_gid(::google::protobuf::int64 value) {
   set_has_gid();
   gid_ = value;
-}
-
-// required string gname = 2;
-inline bool AddGroup::has_gname() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
-}
-inline void AddGroup::set_has_gname() {
-  _has_bits_[0] |= 0x00000002u;
-}
-inline void AddGroup::clear_has_gname() {
-  _has_bits_[0] &= ~0x00000002u;
-}
-inline void AddGroup::clear_gname() {
-  if (gname_ != &::google::protobuf::internal::kEmptyString) {
-    gname_->clear();
-  }
-  clear_has_gname();
-}
-inline const ::std::string& AddGroup::gname() const {
-  return *gname_;
-}
-inline void AddGroup::set_gname(const ::std::string& value) {
-  set_has_gname();
-  if (gname_ == &::google::protobuf::internal::kEmptyString) {
-    gname_ = new ::std::string;
-  }
-  gname_->assign(value);
-}
-inline void AddGroup::set_gname(const char* value) {
-  set_has_gname();
-  if (gname_ == &::google::protobuf::internal::kEmptyString) {
-    gname_ = new ::std::string;
-  }
-  gname_->assign(value);
-}
-inline void AddGroup::set_gname(const char* value, size_t size) {
-  set_has_gname();
-  if (gname_ == &::google::protobuf::internal::kEmptyString) {
-    gname_ = new ::std::string;
-  }
-  gname_->assign(reinterpret_cast<const char*>(value), size);
-}
-inline ::std::string* AddGroup::mutable_gname() {
-  set_has_gname();
-  if (gname_ == &::google::protobuf::internal::kEmptyString) {
-    gname_ = new ::std::string;
-  }
-  return gname_;
-}
-inline ::std::string* AddGroup::release_gname() {
-  clear_has_gname();
-  if (gname_ == &::google::protobuf::internal::kEmptyString) {
-    return NULL;
-  } else {
-    ::std::string* temp = gname_;
-    gname_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
-    return temp;
-  }
-}
-inline void AddGroup::set_allocated_gname(::std::string* gname) {
-  if (gname_ != &::google::protobuf::internal::kEmptyString) {
-    delete gname_;
-  }
-  if (gname) {
-    set_has_gname();
-    gname_ = gname;
-  } else {
-    clear_has_gname();
-    gname_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
-  }
 }
 
 // -------------------------------------------------------------------
@@ -1188,48 +1275,74 @@ inline void GMessage::set_gid(::google::protobuf::int64 value) {
   gid_ = value;
 }
 
-// repeated string gmessage = 2;
-inline int GMessage::gmessage_size() const {
-  return gmessage_.size();
+// required string content = 2;
+inline bool GMessage::has_content() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
 }
-inline void GMessage::clear_gmessage() {
-  gmessage_.Clear();
+inline void GMessage::set_has_content() {
+  _has_bits_[0] |= 0x00000002u;
 }
-inline const ::std::string& GMessage::gmessage(int index) const {
-  return gmessage_.Get(index);
+inline void GMessage::clear_has_content() {
+  _has_bits_[0] &= ~0x00000002u;
 }
-inline ::std::string* GMessage::mutable_gmessage(int index) {
-  return gmessage_.Mutable(index);
+inline void GMessage::clear_content() {
+  if (content_ != &::google::protobuf::internal::kEmptyString) {
+    content_->clear();
+  }
+  clear_has_content();
 }
-inline void GMessage::set_gmessage(int index, const ::std::string& value) {
-  gmessage_.Mutable(index)->assign(value);
+inline const ::std::string& GMessage::content() const {
+  return *content_;
 }
-inline void GMessage::set_gmessage(int index, const char* value) {
-  gmessage_.Mutable(index)->assign(value);
+inline void GMessage::set_content(const ::std::string& value) {
+  set_has_content();
+  if (content_ == &::google::protobuf::internal::kEmptyString) {
+    content_ = new ::std::string;
+  }
+  content_->assign(value);
 }
-inline void GMessage::set_gmessage(int index, const char* value, size_t size) {
-  gmessage_.Mutable(index)->assign(
-    reinterpret_cast<const char*>(value), size);
+inline void GMessage::set_content(const char* value) {
+  set_has_content();
+  if (content_ == &::google::protobuf::internal::kEmptyString) {
+    content_ = new ::std::string;
+  }
+  content_->assign(value);
 }
-inline ::std::string* GMessage::add_gmessage() {
-  return gmessage_.Add();
+inline void GMessage::set_content(const char* value, size_t size) {
+  set_has_content();
+  if (content_ == &::google::protobuf::internal::kEmptyString) {
+    content_ = new ::std::string;
+  }
+  content_->assign(reinterpret_cast<const char*>(value), size);
 }
-inline void GMessage::add_gmessage(const ::std::string& value) {
-  gmessage_.Add()->assign(value);
+inline ::std::string* GMessage::mutable_content() {
+  set_has_content();
+  if (content_ == &::google::protobuf::internal::kEmptyString) {
+    content_ = new ::std::string;
+  }
+  return content_;
 }
-inline void GMessage::add_gmessage(const char* value) {
-  gmessage_.Add()->assign(value);
+inline ::std::string* GMessage::release_content() {
+  clear_has_content();
+  if (content_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = content_;
+    content_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
 }
-inline void GMessage::add_gmessage(const char* value, size_t size) {
-  gmessage_.Add()->assign(reinterpret_cast<const char*>(value), size);
-}
-inline const ::google::protobuf::RepeatedPtrField< ::std::string>&
-GMessage::gmessage() const {
-  return gmessage_;
-}
-inline ::google::protobuf::RepeatedPtrField< ::std::string>*
-GMessage::mutable_gmessage() {
-  return &gmessage_;
+inline void GMessage::set_allocated_content(::std::string* content) {
+  if (content_ != &::google::protobuf::internal::kEmptyString) {
+    delete content_;
+  }
+  if (content) {
+    set_has_content();
+    content_ = content;
+  } else {
+    clear_has_content();
+    content_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  }
 }
 
 // -------------------------------------------------------------------
@@ -1258,74 +1371,26 @@ inline void PMessage::set_uid(::google::protobuf::int64 value) {
   uid_ = value;
 }
 
-// required string uname = 2;
-inline bool PMessage::has_uname() const {
+// required int64 peerid = 2;
+inline bool PMessage::has_peerid() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
-inline void PMessage::set_has_uname() {
+inline void PMessage::set_has_peerid() {
   _has_bits_[0] |= 0x00000002u;
 }
-inline void PMessage::clear_has_uname() {
+inline void PMessage::clear_has_peerid() {
   _has_bits_[0] &= ~0x00000002u;
 }
-inline void PMessage::clear_uname() {
-  if (uname_ != &::google::protobuf::internal::kEmptyString) {
-    uname_->clear();
-  }
-  clear_has_uname();
+inline void PMessage::clear_peerid() {
+  peerid_ = GOOGLE_LONGLONG(0);
+  clear_has_peerid();
 }
-inline const ::std::string& PMessage::uname() const {
-  return *uname_;
+inline ::google::protobuf::int64 PMessage::peerid() const {
+  return peerid_;
 }
-inline void PMessage::set_uname(const ::std::string& value) {
-  set_has_uname();
-  if (uname_ == &::google::protobuf::internal::kEmptyString) {
-    uname_ = new ::std::string;
-  }
-  uname_->assign(value);
-}
-inline void PMessage::set_uname(const char* value) {
-  set_has_uname();
-  if (uname_ == &::google::protobuf::internal::kEmptyString) {
-    uname_ = new ::std::string;
-  }
-  uname_->assign(value);
-}
-inline void PMessage::set_uname(const char* value, size_t size) {
-  set_has_uname();
-  if (uname_ == &::google::protobuf::internal::kEmptyString) {
-    uname_ = new ::std::string;
-  }
-  uname_->assign(reinterpret_cast<const char*>(value), size);
-}
-inline ::std::string* PMessage::mutable_uname() {
-  set_has_uname();
-  if (uname_ == &::google::protobuf::internal::kEmptyString) {
-    uname_ = new ::std::string;
-  }
-  return uname_;
-}
-inline ::std::string* PMessage::release_uname() {
-  clear_has_uname();
-  if (uname_ == &::google::protobuf::internal::kEmptyString) {
-    return NULL;
-  } else {
-    ::std::string* temp = uname_;
-    uname_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
-    return temp;
-  }
-}
-inline void PMessage::set_allocated_uname(::std::string* uname) {
-  if (uname_ != &::google::protobuf::internal::kEmptyString) {
-    delete uname_;
-  }
-  if (uname) {
-    set_has_uname();
-    uname_ = uname;
-  } else {
-    clear_has_uname();
-    uname_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
-  }
+inline void PMessage::set_peerid(::google::protobuf::int64 value) {
+  set_has_peerid();
+  peerid_ = value;
 }
 
 // required string content = 3;
@@ -1395,6 +1460,154 @@ inline void PMessage::set_allocated_content(::std::string* content) {
   } else {
     clear_has_content();
     content_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  }
+}
+
+// -------------------------------------------------------------------
+
+// Success
+
+// required int64 uid = 1;
+inline bool Success::has_uid() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void Success::set_has_uid() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void Success::clear_has_uid() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void Success::clear_uid() {
+  uid_ = GOOGLE_LONGLONG(0);
+  clear_has_uid();
+}
+inline ::google::protobuf::int64 Success::uid() const {
+  return uid_;
+}
+inline void Success::set_uid(::google::protobuf::int64 value) {
+  set_has_uid();
+  uid_ = value;
+}
+
+// -------------------------------------------------------------------
+
+// Quit
+
+// required int64 uid = 1;
+inline bool Quit::has_uid() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void Quit::set_has_uid() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void Quit::clear_has_uid() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void Quit::clear_uid() {
+  uid_ = GOOGLE_LONGLONG(0);
+  clear_has_uid();
+}
+inline ::google::protobuf::int64 Quit::uid() const {
+  return uid_;
+}
+inline void Quit::set_uid(::google::protobuf::int64 value) {
+  set_has_uid();
+  uid_ = value;
+}
+
+// -------------------------------------------------------------------
+
+// Failure
+
+// required int64 uid = 1;
+inline bool Failure::has_uid() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void Failure::set_has_uid() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void Failure::clear_has_uid() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void Failure::clear_uid() {
+  uid_ = GOOGLE_LONGLONG(0);
+  clear_has_uid();
+}
+inline ::google::protobuf::int64 Failure::uid() const {
+  return uid_;
+}
+inline void Failure::set_uid(::google::protobuf::int64 value) {
+  set_has_uid();
+  uid_ = value;
+}
+
+// required string erro = 2;
+inline bool Failure::has_erro() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void Failure::set_has_erro() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void Failure::clear_has_erro() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void Failure::clear_erro() {
+  if (erro_ != &::google::protobuf::internal::kEmptyString) {
+    erro_->clear();
+  }
+  clear_has_erro();
+}
+inline const ::std::string& Failure::erro() const {
+  return *erro_;
+}
+inline void Failure::set_erro(const ::std::string& value) {
+  set_has_erro();
+  if (erro_ == &::google::protobuf::internal::kEmptyString) {
+    erro_ = new ::std::string;
+  }
+  erro_->assign(value);
+}
+inline void Failure::set_erro(const char* value) {
+  set_has_erro();
+  if (erro_ == &::google::protobuf::internal::kEmptyString) {
+    erro_ = new ::std::string;
+  }
+  erro_->assign(value);
+}
+inline void Failure::set_erro(const char* value, size_t size) {
+  set_has_erro();
+  if (erro_ == &::google::protobuf::internal::kEmptyString) {
+    erro_ = new ::std::string;
+  }
+  erro_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* Failure::mutable_erro() {
+  set_has_erro();
+  if (erro_ == &::google::protobuf::internal::kEmptyString) {
+    erro_ = new ::std::string;
+  }
+  return erro_;
+}
+inline ::std::string* Failure::release_erro() {
+  clear_has_erro();
+  if (erro_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = erro_;
+    erro_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+inline void Failure::set_allocated_erro(::std::string* erro) {
+  if (erro_ != &::google::protobuf::internal::kEmptyString) {
+    delete erro_;
+  }
+  if (erro) {
+    set_has_erro();
+    erro_ = erro;
+  } else {
+    clear_has_erro();
+    erro_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
   }
 }
 

@@ -1,11 +1,14 @@
 #ifndef USER_H
 #define USER_H
 
+#include <iostream>
 #include <string>
 #include "Conversation.h"
-
+#include "msg.pb.h"
+using namespace im;
 
 #include <boost/unordered_map.hpp>
+
 
 enum UserStatus
 {
@@ -19,12 +22,17 @@ class User : boost::noncopyable
 	friend class PrivateChat;
 	friend class GroupChat;
 public:
+	User();
   User(std::string accountName, std::string passwd);
 
-	void signUp();
-  bool sendMessageToUser(User to, std::string content);
-  bool sendMessageToGroupChat(int id, std::string content);
-  void setStatus(UserStatus status);
+	SignUp signUp();
+  PMessage sendMessageToUser(int64_t uid, std::string content);
+  GMessage sendMessageToGroupChat(int64_t gid, std::string content);
+
+	void setId(int64_t id);
+  void setStatus(UserStatus status) { status_ = status; }
+	void setAccountName(std::string name) { accountName_ = name; }
+	void setPassword(std::string passwd) { passwd_ = passwd; }
   UserStatus getStatus() const;
 //  bool addContact(User user);
 //  void receivedAddRequest(AddRequest req);
@@ -34,8 +42,9 @@ public:
   void addConversation(PrivateChat conversation);
   void addConversation(GroupChat conversation);
 	void createGroup();
-  int getId();
+  int64_t getId();
   std::string getAccountName();
+	std::string getPassword();
 
 private:
   int id_;

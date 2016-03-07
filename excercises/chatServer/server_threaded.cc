@@ -10,21 +10,41 @@
 
 #include <boost/bind.hpp>
 #include <boost/make_shared.hpp>
+#include <boost/weak_ptr.hpp>
+#include <boost/unordered_map.hpp>
 
 #include <set>
 #include <stdio.h>
 
 using namespace im;
 
+
 typedef boost::shared_ptr<SignUp> SignUpPtr;
 typedef boost::shared_ptr<Login>  LoginPtr;
 typedef boost::shared_ptr<PMessage> PMessagePtr;
+typedef boost::shared_ptr<GMessage> GMessagePtr;
+typedef boost::shared_ptr<CreateGroup> CreateGroupPtr;
+typedef boost::shared_ptr<AddGroup> AddGroupPtr;
+typedef boost::shared_ptr<Success>  SuccessPtr;
+typedef boost::shared_ptr<Quit>  QuitPtr;
 typedef boost::shared_ptr<MysqlConnection> PMysqlConnectionPtr;
 
+enum UserStaus
+{
+	Offline, Away, Idle, Online, Busy
+};
+
 const char* insertFmt = "INSERT INTO userinfo(user_name, password) VALUES(\'%s\', \'%s\')";
+const char* selectFmt = "SELECT password FROM userinfo WHERE user_id = \'%ld\'";
+const char* updateFmt = "UPDATE userinfo SET %s = \'%d\' WHERE user_id = \'%ld\'";
+
+
 
 class ChatServer : boost::noncopyable
 {
+    typedef boost::unordered_map<int64_t, TcpConnectionPtr> UserConnectionUMap;
+		typedef boost::unordered_multimap<int64_t, TcpConnectionPtr> GroupConnectionUMap;
+		typedef GroupConnectionUMap::iterator Giter;
 public:
     ChatServer(EventLoop* loop,
             const InetAddress& listenAddr)
@@ -38,6 +58,14 @@ public:
 						boost::bind(&ChatServer::onLogin, this, _1, _2, _3));
 				dispatcher_.registerMessageCallback<PMessage>(
 						boost::bind(&ChatServer::onPMessage, this, _1, _2, _3));
+				dispatcher_.registerMessageCallback<GMessage>(
+						boost::bind(&ChatServer::onGMessage, this, _1, _2, _3));
+				dispatcher_.registerMessageCallback<Quit>(
+						boost::bind(&ChatServer::onQuit, this, _1, _2, _3));
+				dispatcher_.registerMessageCallback<CreateGroup>(
+						boost::bind(&ChatServer::onCreateGroup, this, _1, _2, _3));
+				dispatcher_.registerMessageCallback<AddGroup>(
+						boost::bind(&ChatServer::onAddGroup, this, _1, _2, _3));
         server_.setConnectionCallback(
                 boost::bind(&ChatServer::onConnection, this, _1));
         server_.setMessageCallback(
@@ -72,16 +100,16 @@ private:
             << conn->peerAddress().toIpPort() << " is "
             << (conn->connected() ? "UP":"DOWN");
 
-        MutexLockGuard lock(mutex_);
         if (conn->connected())
         {
-            connections_.insert(conn);
+            //connections_.insert(conn);
         }
         else
         {
-            connections_.erase(conn);
+            //connections_.erase(conn);
         }
     }
+
 
 		void onUnknownMessage(const TcpConnectionPtr& conn,
 													const MessagePtr& message,
@@ -99,19 +127,38 @@ private:
 			const char* name = message->name().c_str();
 			const char* passwd = message->passwd().c_str();
 			mysql_->exec_format(insertFmt, name, passwd);
-  /*			MutexLockGuard lock(mutex_);
-			for (ConnectionList::iterator it = connections_.begin(); it != connections_.end(); ++it)
-			{
-				codec_.send(*it, answer);
-			}
-			*/
+			mysql_->exec("SELECT last_insert_id()");
+			const char** str = mysql_->result_row_data(0);
+			userconnections_.insert(UserConnectionUMap::value_type(atoi(str[0]), conn));
+      Success suc;
+			suc.set_uid(atoi(str[0]));
+			codec_.send(conn,suc);
 		}
 
 		void onLogin(const TcpConnectionPtr& conn,
 									 const LoginPtr& message, 
 									 Timestamp)
 		{
-			LOG_INFO << "onLogin: " << message->GetTypeName();
+			LOG_INFO << "onLogin:\n" << message->GetTypeName() << message->DebugString();
+			int64_t uid = message->uid();
+			mysql_->exec_format(selectFmt, uid);
+		  const  char** pwd = mysql_->result_row_data(0);
+			if (pwd[0] == message->passwd()) 
+			{
+				mysql_->exec_format(updateFmt, "status", Online, uid);
+				userconnections_[uid] = conn;
+			}
+			
+		}
+
+		void onQuit(const TcpConnectionPtr& conn,
+								const QuitPtr& message,
+								Timestamp)
+		{
+			LOG_INFO << "onQuit:\n" << message->GetTypeName() << message->DebugString();
+      int64_t uid = message->uid();
+			mysql_->exec_format(updateFmt, "status", Offline, uid);
+
 		}
 
 		void onPMessage(const TcpConnectionPtr& conn,
@@ -119,25 +166,54 @@ private:
 										Timestamp)
 		{
 			LOG_INFO << "onPMessage: " << message->DebugString();
+			int64_t peerId = message->peerid();
+			boost::weak_ptr<TcpConnection> wconn(userconnections_[peerId]);
+			if (!wconn.expired()) 
+			{
+				boost::shared_ptr<TcpConnection> peercon= wconn.lock();
+				codec_.send(peercon, *message);
+			}
+			else
+			{
+//					MemCachedClient mc;
+//					mc.Insert("Xie", "Hui");
+			}
+
 		}
 
-/*    void onStringMessage(const TcpConnectionPtr& conn,
-            const std::string& message,
-            Timestamp receiveTime)
-    {
-        MutexLockGuard lock(mutex_);
-        for (ConnectionList::iterator it = connections_.begin(); it != connections_.end(); it++)
-        {
-            //codec_.send(get_pointer(*it), message);
-        }
-    }
-*/
-    typedef std::set<TcpConnectionPtr> ConnectionList;
+		void onGMessage(const TcpConnectionPtr& conn,
+										const GMessagePtr& message,
+										Timestamp)
+		{
+			LOG_INFO << "onGMessage: " << message->DebugString();
+			for (Giter iter = groupconnections_.begin(); iter != groupconnections_.end(); ++iter) 
+			{
+				codec_.send(iter->second, *message);
+			}
+     
+		}
+
+		void onCreateGroup(const TcpConnectionPtr& conn,
+											 const CreateGroupPtr& message,
+											 Timestamp)
+		{
+			LOG_INFO << "onCreateGroup: " << message->DebugString();
+			groupconnections_.insert(GroupConnectionUMap::value_type(message->gid(), conn));
+		}
+
+		void onAddGroup(const TcpConnectionPtr& conn,
+											 const AddGroupPtr& message,
+											 Timestamp)
+		{
+			LOG_INFO << "onAddGroup: " << message->DebugString();
+			groupconnections_.insert(GroupConnectionUMap::value_type(message->gid(), conn));
+		}
     TcpServer server_;
 		ProtobufDispatcher dispatcher_;
     ProtobufCodec codec_;
     MutexLock mutex_;
-    ConnectionList connections_;
+		UserConnectionUMap userconnections_;
+		GroupConnectionUMap groupconnections_;
 		PMysqlConnectionPtr mysql_;
 };
 

@@ -20,7 +20,6 @@ using namespace im; //message namespace
 
 typedef boost::shared_ptr<Empty> EmptyPtr;
 typedef boost::shared_ptr<PMessage> PMessagePtr;
-typedef boost::shared_ptr<GMessage> GMessagePtr;
 typedef boost::shared_ptr<Success> SuccessPtr;
 
 
@@ -63,8 +62,6 @@ public:
     {
 				dispatcher_.registerMessageCallback<PMessage>(
 						boost::bind(&ChatClient::onPrivateChat, this, _1, _2, _3));
-				dispatcher_.registerMessageCallback<GMessage>(
-						boost::bind(&ChatClient::onGroupChat, this, _1, _2, _3));
 				dispatcher_.registerMessageCallback<Empty>(
 						boost::bind(&ChatClient::onEmpty, this, _1, _2, _3));
 				dispatcher_.registerMessageCallback<Success>(
@@ -127,13 +124,6 @@ private:
 			LOG_INFO << "onPMessage:\n" << message->GetTypeName() << message->DebugString();
 		}
 
-		void onGroupChat(const TcpConnectionPtr&,
-				const GMessagePtr& message,
-				Timestamp)
-		{
-			LOG_INFO << "onGMessage:\n" << message->GetTypeName() << message->DebugString();
-		}
-
 		void onSuccess(const TcpConnectionPtr&,
 									 const SuccessPtr& message,
 									 Timestamp)
@@ -167,10 +157,55 @@ int main(int argc, char* argv[])
         EventLoopThread loopThread;
         uint16_t port = static_cast<uint16_t>(atoi(argv[2]));
         InetAddress serverAddr(argv[1], port);
+				User user;
+				SignUp signUp;
+				Login  login;
 
         ChatClient client(loopThread.startLoop(), serverAddr);
         client.connect();
+				ifstream input;
+				input.open("user.info", ifstream::in);
+				if (input.fail()) {
+					ofstream out;
+					out.open("user.info", ofstream::out | ofstream::app);
+					if (!out) 
+					{
+						std::cout <<"file create failed!" << std::endl;
+						return 1;
+					}
+					signUp = user.signUp();
+					client.write(signUp);
+			    while (messageReceived == NULL);	
+					int64_t id =(*(Success*)messageReceived).uid();
+					delete messageReceived;
+					user.setId(id);
+					out << id << std::endl;
+          out << user.getAccountName() << std::endl;
+					out << user.getPassword() << std::endl;
+					out.close();
+					input.open("user.info", ifstream::in);
+				}
+			  std::string id;
+				std::string name;
+				std::string passwd;
+				getline(input, id);
+				getline(input, name);
+				getline(input, passwd);
+				login.set_uid(atoi(id.c_str()));
+				login.set_passwd(passwd);
+				user.setId(atoi(id.c_str()));
+				user.setAccountName(name);
+				user.setPassword(passwd);
+				client.write(login);
 
+				input.close();
+
+				Empty empty;
+
+				if (argc > 3 && argv[3][0] == 'e')
+				{
+					messageToSend = &empty;
+				}
 				std::string in;	
 				std::vector<std::string> parseResult;
 				while (true)
@@ -188,109 +223,27 @@ int main(int argc, char* argv[])
 }
 
 
-
-void sign(ChatClient& client, vector<string>& message)
-{
-		ofstream out("user.info", ofstream::out);
-		SignUp signUp;
-		signUp.set_name(message[1]);
-		signUp.set_passwd(message[2]);
-		client.write(signUp);
-	  while (messageReceived == NULL);	
-		int64_t id =(*(Success*)messageReceived).uid();
-		out << id << endl;
-		out << message[1] << endl;
-		out << message[2] << endl;
-		delete messageReceived;
-}
-void login(ChatClient& client, vector<string>& message)
-{
-		ifstream in("user.info", ifstream::in);
-		string id;
-		getline(in, id);
-		Login lmsg;
-		lmsg.set_uid(atol(id.c_str()));
-		lmsg.set_passwd(message[1]);
-		client.write(lmsg);
-}
-
-void onPrivateChat(ChatClient& client, vector<string>& message)
-{
-		ifstream in("user.info", ifstream::in);
-		string uid;
-		getline(in, uid);
-		PMessage pmessage;
-		pmessage.set_uid(atol(uid.c_str()));
-		pmessage.set_peerid(atol(message[1].c_str()));
-		string content;
-		for (size_t i = 2; i < message.size(); ++i)
-				content += message[i] + " ";
-		pmessage.set_content(content);
-		client.write(pmessage);
-}
-
-void quit(ChatClient& client)
-{
-		ifstream in("user.info", ifstream::in);
-		string uid;
-		getline(in, uid);
-		Quit message;
-		message.set_uid(atol(uid.c_str()));
-		client.write(message);
-		client.disconnect();
-    CurrentThread::sleepUsec(1000*1000);
-}
-
-void groupChat(ChatClient& client, vector<string>& message)
-{
-		GMessage gmessage;
-		gmessage.set_gid(atol(message[1].c_str()));
-		string gmsg;
-		for (size_t i = 1; i < message.size(); ++i)
-				gmsg += message[i] + " ";
-		gmessage.set_content(gmsg);
-		client.write(gmessage);
-}
-
-void createGroup(ChatClient& client, vector<string>& message)
-{
-	CreateGroup group;
-	group.set_gid(atol(message[1].c_str()));
-	client.write(group);
-}
-
-void addGroup(ChatClient& client, vector<string>& message)
-{
-	AddGroup group;
-	group.set_gid(atol(message[1].c_str()));
-	client.write(group);
-}
-
 void dispatch(ChatClient& client, vector<string>& message)
 {
 	switch(message[0][0]) {
-		case 'S':
-				sign(client, message);
-				break;
-		case 'L':
-				login(client, message);
-				break;
 		case 'P':
-				onPrivateChat(client, message);
-				break;
-		case 'C':
-				createGroup(client, message);
-				break;
-		case 'A':
-				addGroup(client, message);
-				break;
-		case 'G':
-				groupChat(client, message);
+			{
+			PMessage pmessage;
+			pmessage.set_uid(atol(message[1].c_str()));
+			pmessage.set_content(message[2]);
+			client.write(pmessage);
+			break;
+			}
+		case 'M':
 			break;
 		case 'q':
-				quit(client);
+				client.disconnect();
+        CurrentThread::sleepUsec(1000*1000);
 				break;
 		default:
 			std::cout << "Wrong Type of Message!" << std::endl;
 	};
 }
+
+
+
