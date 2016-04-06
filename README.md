@@ -17,7 +17,7 @@
     
 编译
 ----
-cd ./chat/excercise/chatServer
+cd ./chat/excercise/chatServer<br>
 make
 启动服务器
 ---------
