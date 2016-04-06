@@ -14,3 +14,12 @@
     connector: 处理长连接的建立和维护，同时负责接收和发送信息
     chat :管理聊天室用户， 接收connector发送的消息， push消息到对应的connector
     mastter: master通过RPC调用来发送“启动/关闭/更新”进程的命令
+    
+编译
+----
+
+cd ./chat/excercise/chatServer
+make
+
+启动服务器
+---------
