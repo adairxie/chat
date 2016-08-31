@@ -12,8 +12,6 @@
 #include <boost/noncopyable.hpp>
 
 #include <iostream>
-#include <string>
-#include <stdio.h>
 #include <fstream>
 #include <vector>
 using namespace im; //message namespace 
@@ -205,12 +203,9 @@ void sign(ChatClient& client, vector<string>& message)
 }
 void login(ChatClient& client, vector<string>& message)
 {
-		ifstream in("user.info", ifstream::in);
-		string id;
-		getline(in, id);
 		Login lmsg;
-		lmsg.set_uid(atol(id.c_str()));
-		lmsg.set_passwd(message[1]);
+		lmsg.set_uid(atol(message[1].c_str()));
+		lmsg.set_passwd(message[2]);
 		client.write(lmsg);
 }
 
