@@ -28,3 +28,17 @@
 ---------
     chatClient 需要在本地存储用户信息，user.info中的用户信息在用户首次注册时生成。<br>
     ./chatClient [server_addr] [server_port] # server_addr —— 服务器地址 server_port —— 服务器端口
+客户端命令
+---------
+    //注册用户
+    s [user_name] [passwd] 
+    //登录
+    l [user_id] [passwd]            # user_id 由服务器返回，并append到user.info
+    //私聊
+    p [peer_id] [message...]        # peer_id 好的账号, message表示消息
+    //创建聊天群
+    c [group_id]                    # group_id 用户向服务器注册群号
+    //加入聊天群
+    g [group_id]                    # group_id 群号
+    //退出聊天
+    q
