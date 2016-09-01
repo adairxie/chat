@@ -37,8 +37,8 @@
     //私聊
     p [peer_id] [message...]        # peer_id 好的账号, message表示消息
     //创建聊天群
-    c [group_id]                    # group_id 用户向服务器注册群号
+    c [group_id]                    # group_id 用户向服务器注册群号，任意用户都可以创建聊天群
     //加入聊天群
-    g [group_id]                    # group_id 群号
+    g [group_id]                    # group_id 群号，任意人都可以加入某一个群，没有权限限制
     //退出聊天
     q
