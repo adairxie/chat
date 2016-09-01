@@ -23,8 +23,8 @@ make
 
 运行服务器
 ---------
-./server_threaded [port] [thread_nums] #启动服务器 port：服务器端口 thread_nums：线程池大小
+./server_threaded [port] [thread_nums] #启动服务器 port：服务器端口 thread_nums：线程池大小<br>
 运行客户端
 ---------
-chatClient 需要在本地存储用户信息，user.info中的用户信息在用户首次注册时生成。
+chatClient 需要在本地存储用户信息，user.info中的用户信息在用户首次注册时生成。<br>
 ./chatClient [server_addr] [server_port] # server_addr —— 服务器地址 server_port —— 服务器端口
