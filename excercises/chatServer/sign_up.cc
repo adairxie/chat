@@ -16,6 +16,9 @@
 #include <stdio.h>
 #include <fstream>
 #include <vector>
+
+#include "test/permutation.h"
+
 using namespace im; //message namespace 
 
 typedef boost::shared_ptr<Empty> EmptyPtr;
@@ -138,8 +141,8 @@ private:
 									 const SuccessPtr& message,
 									 Timestamp)
 		{
-			LOG_INFO << "onSuccess:\n" << message->GetTypeName() <<" " <<message->DebugString();
-			messageReceived = new Success(*message);
+			//LOG_INFO << "onSuccess:\n" << message->GetTypeName() <<" " <<message->DebugString();
+			//messageReceived = new Success(*message);
 		}
 
 		void onEmpty(const TcpConnectionPtr&,
@@ -159,6 +162,9 @@ private:
 
 void dispatch(ChatClient& client, vector<string>& message);
 
+
+void sign(ChatClient& client, std::string name);
+
 int main(int argc, char* argv[])
 {
     LOG_INFO << "pid = " << getpid();
@@ -171,15 +177,19 @@ int main(int argc, char* argv[])
         ChatClient client(loopThread.startLoop(), serverAddr);
         client.connect();
 
-				std::string in;	
-				std::vector<std::string> parseResult;
-				while (true)
-				{
-					getline(std::cin, in);
-					parseResult = split(in,' ');
-					if (parseResult.size() > 0)
-					  dispatch(client, parseResult);
-				}
+		char username[] = "abcdefgh";
+		std::vector<std::string> result;
+		result = permutation(username);
+		std::cout << "the amount of name: " << result.size()<< " " << result[0] << std::endl;
+		if (result.size() > 40000) 
+		{	
+			int i=0;
+			for (; i < 40000; i++)
+			{
+				sign(client, result[i]);	
+			}
+			std::cout << "the amount of signed user: " << i << std::endl;
+		}
     }
     else
     {
@@ -188,6 +198,13 @@ int main(int argc, char* argv[])
 }
 
 
+void sign(ChatClient& client, std::string name)
+{
+		SignUp signUp;
+		signUp.set_name(name);
+		signUp.set_passwd("123");
+		client.write(signUp);
+}
 
 void sign(ChatClient& client, vector<string>& message)
 {

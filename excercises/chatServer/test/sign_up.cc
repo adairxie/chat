@@ -16,6 +16,9 @@
 #include <stdio.h>
 #include <fstream>
 #include <vector>
+
+#include "permutation.h"
+
 using namespace im; //message namespace 
 
 typedef boost::shared_ptr<Empty> EmptyPtr;
@@ -175,7 +178,7 @@ int main(int argc, char* argv[])
 				std::vector<std::string> parseResult;
 				while (true)
 				{
-					getline(std::cin, in);
+				
 					parseResult = split(in,' ');
 					if (parseResult.size() > 0)
 					  dispatch(client, parseResult);

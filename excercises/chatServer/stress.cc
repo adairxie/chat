@@ -15,6 +15,7 @@
 #include <string>
 #include <stdio.h>
 #include <fstream>
+#include <sys/time.h>
 #include <vector>
 using namespace im; //message namespace 
 
@@ -171,15 +172,48 @@ int main(int argc, char* argv[])
         ChatClient client(loopThread.startLoop(), serverAddr);
         client.connect();
 
-				std::string in;	
-				std::vector<std::string> parseResult;
-				while (true)
-				{
-					getline(std::cin, in);
-					parseResult = split(in,' ');
-					if (parseResult.size() > 0)
-					  dispatch(client, parseResult);
-				}
+		int nums = atoi(argv[3]);
+		srand(gettimeofday(NULL, NULL));
+
+		for (int i=2; i <= nums; i++)
+		{
+			Login lmsg;
+			lmsg.set_uid(i);
+			lmsg.set_passwd(std::string("123"));
+			client.write(lmsg);
+		}
+	
+		std::string content("Hello world!\n"); // message to send
+
+		//for (int i=2; i <= nums; i++)
+		//{
+		long long count = 200000;
+		while (count--) 
+		{
+			//pmsg.set_uid(i);
+			int uid =rand()%nums + 1;
+			PMessage pmsg;
+			pmsg.set_uid(2);
+			int tmpid;
+			int peerid = rand()%nums + 1;
+			if (peerid == uid)
+				continue;
+			pmsg.set_peerid(1);
+			pmsg.set_content(content);
+			client.write(pmsg);
+    		CurrentThread::sleepUsec(100);
+		}
+		//}
+
+		for (int i=2; i <= nums; i++)
+		{
+			Quit msg;
+
+			msg.set_uid(i);
+			client.write(msg);
+		}
+	
+		client.disconnect();
     }
     else
     {
@@ -235,7 +269,7 @@ void quit(ChatClient& client)
 		message.set_uid(atol(uid.c_str()));
 		client.write(message);
 		client.disconnect();
-    	//CurrentThread::sleepUsec(1000*1000);
+    	CurrentThread::sleepUsec(1000*1000);
 }
 
 void groupChat(ChatClient& client, vector<string>& message)

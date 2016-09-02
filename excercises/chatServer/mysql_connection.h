@@ -52,7 +52,7 @@ public:
      */
     int get_errno()
     {
-        return (int)mysql_errno(&m_mysql) ;
+        return mysql_errno(&m_mysql) ;
     }
 
 		void fini();
@@ -92,7 +92,7 @@ public:
         }
     }
 
-    int result_row_count()
+    long long int result_row_count()
     {
         if(m_result == NULL) return 0 ;
         return mysql_num_rows(m_result) ;
@@ -109,7 +109,7 @@ public:
     {
         if(m_result == NULL) return NULL ;
         mysql_data_seek(m_result,rowno) ;
-        return (const char**)mysql_fetch_row(m_result) ;
+        return const_cast<const char**>(mysql_fetch_row(m_result)) ;
 
     }
 

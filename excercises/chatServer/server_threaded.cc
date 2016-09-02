@@ -130,7 +130,7 @@ private:
 			mysql_->exec("SELECT last_insert_id()");
 			const char** str = mysql_->result_row_data(0);
 			userconnections_.insert(UserConnectionUMap::value_type(atoi(str[0]), conn));
-      Success suc;
+      		Success suc;
 			suc.set_uid(atoi(str[0]));
 			codec_.send(conn,suc);
 		}
@@ -172,6 +172,10 @@ private:
 			{
 				boost::shared_ptr<TcpConnection> peercon= wconn.lock();
 				codec_.send(peercon, *message);
+
+      			Success suc;
+				suc.set_uid(message->uid());
+				codec_.send(conn,suc);
 			}
 			else
 			{
@@ -230,7 +234,7 @@ int main(int argc, char* argv[])
         {
             server.setThreadNum(atoi(argv[2]));
         }
-				server.initMysql("localhost", "root", "242785a", "chat");
+				server.initMysql("localhost", "root", "123", "chat");
         server.start();
         loop.loop();
     }

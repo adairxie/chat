@@ -1,4 +1,6 @@
+syntax="proto2";
 package im;
+
 
 message SignUp {
 	required string name = 1;
