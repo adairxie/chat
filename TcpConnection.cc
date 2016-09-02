@@ -19,6 +19,11 @@ void defaultConnectionCallback(const TcpConnectionPtr& conn)
         << (conn->connected() ? "UP" : "DOWN");
 }
 
+void defaultDisconnectionCallback(const TcpConnectionPtr& conn)
+{
+}
+
+
 void defaultMessageCallback(const TcpConnectionPtr& conn,
                             Buffer* buf,
                             Timestamp)

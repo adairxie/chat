@@ -12,8 +12,6 @@
 #include <boost/noncopyable.hpp>
 
 #include <iostream>
-#include <string>
-#include <stdio.h>
 #include <fstream>
 #include <vector>
 using namespace im; //message namespace 

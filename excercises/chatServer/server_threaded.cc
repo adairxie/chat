@@ -179,6 +179,7 @@ private:
 			}
 			else
 			{
+				LOG_INFO << "Expired: " << message->DebugString();
 //					MemCachedClient mc;
 //					mc.Insert("Xie", "Hui");
 			}

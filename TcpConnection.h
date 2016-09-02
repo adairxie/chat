@@ -118,6 +118,7 @@ class TcpConnection : boost ::noncopyable,
 typedef boost::shared_ptr<TcpConnection> TcpConnectionPtr;
 
 void defaultConnectionCallback(const TcpConnectionPtr& conn);
+void defaultDisconnectionCallback(const TcpConnectionPtr& conn);
 
 void defaultMessageCallback(const TcpConnectionPtr& conn,
                             Buffer* buf,
