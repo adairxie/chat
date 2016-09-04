@@ -1,0 +1,28 @@
+syntax="proto2";
+package seri;
+
+message User {
+	required int32 id = 1;
+	required string username = 2;
+	required string password = 3;
+	optional string email = 4;
+	repeated Person person = 5;
+}
+
+message Person {
+	required int32 id = 1;
+	required string name = 2;
+
+	repeated PhoneNumber phone = 3;
+}
+
+enum PhoneType {
+	MOBILE = 0;
+	HOME = 1;
+	WORK = 2;
+}
+
+message PhoneNumber {
+	required string number = 1;
+	optional PhoneType type = 2 [default = HOME];
+}
