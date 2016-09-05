@@ -154,35 +154,32 @@ private:
 			LOG_INFO << "onLogin:\n" << message->GetTypeName() << message->DebugString();
 			int64_t uid = message->uid();
 			mysql_->exec_format(selectFmt, uid);
-		  const  char** pwd = mysql_->result_row_data(0);
+		  	const  char** pwd = mysql_->result_row_data(0);
 			if (pwd[0] == message->passwd()) 
 			{
 				mysql_->exec_format(updateFmt, "status", Online, uid);
-				userconnections_[uid] = conn;
-				int lastestIndex = lastestRecord_[uid];
+				int64_t lastestIndex = lastestRecord_[uid];
 				redisReply* reply = (redisReply*) redisCommand(redis_, "LLEN %ld", uid);
-				int currentIndex = reply->integer;
+				int64_t currentIndex = reply->integer;
 				if (NULL != reply)
 				{
 					freeReplyObject(reply);
 				}
-				lastestIndex++;
-				if(lastestIndex <= currentIndex) 
+				redisReply *reply1 = (redisReply*) redisCommand(redis_, "LRANGE %ld %d %d", uid, lastestIndex, -1);
+				if (NULL != reply1)
 				{
-					redisReply *reply1 = (redisReply*) redisCommand(redis_, "LRANGE %ld %d %d", uid, lastestIndex, -1);
-				LOG_INFO << "uid: " << uid << "lastestIndex: " << lastestIndex << "currentIndx: " << currentIndex;
-					if (NULL != reply1)
+					int64_t count= currentIndex - lastestIndex;
+					for (int i=0; i < count; i++)
 					{
 						PMessage pmessage;
-						pmessage.ParseFromArray(reply1->element[0]->str,
-								reply1->element[0]->len);
-					//	codec_.send(conn, pmessage);
-
-				 //		freeReplyObject(reply);
+						pmessage.ParseFromArray(reply1->element[i]->str,
+							reply1->element[i]->len);
+						codec_.send(conn, pmessage);
 					}
+			 		freeReplyObject(reply);
 				}
 
-
+				userconnections_[uid] = conn;
 			}
 			
 		}
@@ -216,7 +213,7 @@ private:
 				boost::shared_ptr<TcpConnection> peercon= wconn.lock();
 				codec_.send(peercon, *message);
 
-      	Success suc;
+      			Success suc;
 				suc.set_uid(message->uid());
 				codec_.send(conn,suc);
 			}
@@ -232,7 +229,7 @@ private:
 			bzero(buf, byteSize);
 			message->SerializeToArray(buf, byteSize);
 			redisReply* reply = (redisReply*) redisCommand(redis_,
-						"RPUSH %ld %b", peerId, buf, byteSize);
+						"LPUSH %ld %b", peerId, buf, byteSize);
 			if (NULL != reply)
 			{
 				freeReplyObject(reply);
@@ -291,7 +288,7 @@ int main(int argc, char* argv[])
         {
             server.setThreadNum(atoi(argv[2]));
         }
-				server.initMysql("localhost", "root", "242785a", "chat");
+				server.initMysql("localhost", "root", "123", "chat");
 				struct timeval timeout = {1, 500000};
 				server.initRedisContext("localhost", 6379, timeout); 
         server.start();

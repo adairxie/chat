@@ -215,7 +215,7 @@ void onPrivateChat(ChatClient& client, vector<string>& message)
 		string uid;
 		getline(in, uid);
 		PMessage pmessage;
-		pmessage.set_uid(atol(uid.c_str()));
+		pmessage.set_uid(atoi(uid.c_str()));
 		pmessage.set_peerid(atol(message[1].c_str()));
 		string content;
 		for (size_t i = 2; i < message.size(); ++i)
