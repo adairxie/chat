@@ -9,12 +9,10 @@
   ![](http://img1.51cto.com/attachment/201104/110349553.png)
 详细说明
 --------
-    gate: 用来分配客户端的连接到不同的connector上，客户端先连接gate, gate告知客户端
-          应该连接哪个connector, 并将connector的地址端口等信息发送给客户端，客户端
-          据此连接指定的connector
-    connector: 处理长连接的建立和维护，同时负责接收和发送信息
-    chat :管理聊天室用户， 接收connector发送的消息， push消息到对应的connector
-    mastter: master通过RPC调用来发送“启动/关闭/更新”进程的命令
+    使用LVS+Keepalived实现负载均衡, LVS的转发采用直接路由模式。
+    负载均衡层由两个Director组成，一个master和一个backup。
+    服务器集群部署两个chat服务器，提供即时通讯的基本功能
+    数据共享存储层通过mysql和redis存储用户信息、缓存消息记录。
     
 编译
 --------
