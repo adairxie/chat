@@ -6,7 +6,7 @@
     loop给TcpConnection用
 体系结构
 --------
-  ![](http://images.cnitblog.com/blog/136188/201303/05095209-75f020e922c04c4695f43d2a7780577e.png)
+  ![](http://img1.51cto.com/attachment/201104/110349553.png)
 详细说明
 --------
     gate: 用来分配客户端的连接到不同的connector上，客户端先连接gate, gate告知客户端
