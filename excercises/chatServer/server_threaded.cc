@@ -15,6 +15,7 @@
 
 #include <set>
 #include <stdio.h>
+#include <hiredis/hiredis.h>
 
 using namespace im;
 
@@ -81,6 +82,16 @@ public:
 			mysql_->use(db);
 			return 0;
 		}
+
+		int initRedisContext(const char *host, int port, struct timeval timeout)
+		{
+			redis_ = redisConnectWithTimeout(host, port, timeout);
+			if (redis_->err) {
+				LOG_INFO << "Connection error: " << redis_->errstr;
+				return -1;
+			}
+			return 0;
+		}
 		
 
     void setThreadNum(int numThreads)
@@ -130,6 +141,7 @@ private:
 			mysql_->exec("SELECT last_insert_id()");
 			const char** str = mysql_->result_row_data(0);
 			userconnections_.insert(UserConnectionUMap::value_type(atoi(str[0]), conn));
+			lastestRecord_.insert(boost::unordered_map<int64_t, int64_t>::value_type(atoi(str[0]), 0));
       		Success suc;
 			suc.set_uid(atoi(str[0]));
 			codec_.send(conn,suc);
@@ -147,6 +159,30 @@ private:
 			{
 				mysql_->exec_format(updateFmt, "status", Online, uid);
 				userconnections_[uid] = conn;
+				int lastestIndex = lastestRecord_[uid];
+				redisReply* reply = (redisReply*) redisCommand(redis_, "LLEN %ld", uid);
+				int currentIndex = reply->integer;
+				if (NULL != reply)
+				{
+					freeReplyObject(reply);
+				}
+				lastestIndex++;
+				if(lastestIndex <= currentIndex) 
+				{
+					redisReply *reply1 = (redisReply*) redisCommand(redis_, "LRANGE %ld %d %d", uid, lastestIndex, -1);
+				LOG_INFO << "uid: " << uid << "lastestIndex: " << lastestIndex << "currentIndx: " << currentIndex;
+					if (NULL != reply1)
+					{
+						PMessage pmessage;
+						pmessage.ParseFromArray(reply1->element[0]->str,
+								reply1->element[0]->len);
+					//	codec_.send(conn, pmessage);
+
+				 //		freeReplyObject(reply);
+					}
+				}
+
+
 			}
 			
 		}
@@ -158,6 +194,13 @@ private:
 			LOG_INFO << "onQuit:\n" << message->GetTypeName() << message->DebugString();
       int64_t uid = message->uid();
 			mysql_->exec_format(updateFmt, "status", Offline, uid);
+
+			redisReply *reply = (redisReply*) redisCommand(redis_, "LLEN %ld", uid);
+			if (NULL != reply)
+			{
+				lastestRecord_[uid] = reply->integer;
+				freeReplyObject(reply);
+			}
 
 		}
 
@@ -173,7 +216,7 @@ private:
 				boost::shared_ptr<TcpConnection> peercon= wconn.lock();
 				codec_.send(peercon, *message);
 
-      			Success suc;
+      	Success suc;
 				suc.set_uid(message->uid());
 				codec_.send(conn,suc);
 			}
@@ -184,6 +227,16 @@ private:
 //					mc.Insert("Xie", "Hui");
 			}
 
+			const int byteSize = message->ByteSize();
+			char buf[byteSize];
+			bzero(buf, byteSize);
+			message->SerializeToArray(buf, byteSize);
+			redisReply* reply = (redisReply*) redisCommand(redis_,
+						"RPUSH %ld %b", peerId, buf, byteSize);
+			if (NULL != reply)
+			{
+				freeReplyObject(reply);
+			}
 		}
 
 		void onGMessage(const TcpConnectionPtr& conn,
@@ -220,6 +273,9 @@ private:
 		UserConnectionUMap userconnections_;
 		GroupConnectionUMap groupconnections_;
 		PMysqlConnectionPtr mysql_;
+		redisContext* redis_;
+    boost::unordered_map<int64_t, int64_t> lastestRecord_;
+
 };
 
 int main(int argc, char* argv[])
@@ -235,7 +291,9 @@ int main(int argc, char* argv[])
         {
             server.setThreadNum(atoi(argv[2]));
         }
-				server.initMysql("localhost", "root", "123", "chat");
+				server.initMysql("localhost", "root", "242785a", "chat");
+				struct timeval timeout = {1, 500000};
+				server.initRedisContext("localhost", 6379, timeout); 
         server.start();
         loop.loop();
     }
